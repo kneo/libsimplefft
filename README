@@ -1,32 +1,47 @@
 libsimplefft
 ---------------------
-
 This library is designed to run as fast as possible.
 Several optimization are implemented by default.
 This implementation uses the Radix 2 decimation in frequency Fast Fourier Transform (Radix 2 DIF FFT).
 Its an inplace computation using precomputed twiddle factors.
+There are no parallel threads working. This implementation is designed to be as fundamental as possible.
 
 What's working
 ---------------------
-- for now single precision fft works fine
+- single precision  \
+- double precision   > FFTs are working
+- integer precision /
 
 What's going to work?
 ----------------------
 - ifft is not implemented by now but will be available soon as well
 - JNI interface for java access is going to be implemented
 - Android build targed is scheduled as well
-- bit reversal is going to be cached
 - further low latency optimations are going to be made
 
 You said its fast how fast is it?
 -----------------------------------
 it would be a FFT if it would'nt be fast so here some facts:
-Test machine : Intel i5 520M 2.4 GHz @ 4GB RAM running ubuntu linux 3.0.0.17
+Test machine : 
+	Intel i5 520M 2.4 GHz
+	4GB RAM 
+	Ubuntu linux 3.0.0.17 x64
 
 A dash "-" means there are no time values since clock() returned zero.
 This are single precision calculations, if the further types are available, there
 going to be added here. If I manage to port it to ARM there will be a benchmark too.
 
-samples       : 1024 2048 4096 8192 16384 32768 65536 131072 262144 524288 1048576 2097152
-Exec-Time(ms) :   -    -    -    -     -     20    20     50    120    280     780    1760
+	  size  | time(ms)
+	--------+---------
+	   1024 |      -
+	   2048 |      -
+	   4096 |      -
+	   8192 |      -
+	  16384 |      -
+	  32768 |     20
+	  65536 |     20
+	 131072 |     50
+	 262144 |    120
+	 524288 |    280
+	1048576 |    780
 

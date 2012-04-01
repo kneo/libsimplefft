@@ -90,4 +90,9 @@ int16_t im_mul_i(int16_t re1,int16_t im1, float re2,float im2);
 */
 uint32_t bit_reversal(uint32_t base,uint32_t num);
 
+/**print sample buffer to stdout for debugging purposes
+*@param samples samples to print
+*/
+void lsfft_printl_samples(CPLX_SAMPLES* samples);
+
 #endif

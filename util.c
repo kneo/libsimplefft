@@ -77,3 +77,23 @@ uint32_t bit_reversal(uint32_t base,uint32_t num){
 	}
 	return 0;
 }
+
+
+void lsfft_printl_samples(CPLX_SAMPLES* samples){
+	if(samples){
+		uint32_t i = 0;
+		for(;i<samples->length;i++){
+			switch(samples->type){
+				case CPLX_TYPE_SP:
+					printf("%f + %fi\n",((float*)samples->re)[i],((float*)samples->im)[i]);
+				break;
+				case CPLX_TYPE_DP:
+					printf("%f + %fi\n",((double*)samples->re)[i],((double*)samples->im)[i]);
+				break;
+				case CPLX_TYPE_INT:
+					printf("%d + %di\n",((int16_t*)samples->re)[i],((int16_t*)samples->im)[i]);
+				break;
+			}		
+		}
+	}
+}

@@ -3,9 +3,6 @@
 
 #include<time.h>
 
-struct CPLX_FLOAT;
-struct CPLX_DOUBLE;
-struct CPLX_INTEGER;
 struct CPLX_SAMPLES;
 
 /**Type holding a buffer of complex samples
@@ -48,6 +45,7 @@ typedef struct FFT_CONTEXT{
 	uint32_t samples;
 	uint32_t stages;
 	CPLX_SAMPLES* twiddle_factors;
+	uint32_t* bit_rev_indices;
 }FFT_CONTEXT;
 
 #endif

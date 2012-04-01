@@ -24,6 +24,13 @@ FFT_CONTEXT* lsfft_init(uint32_t samples, uint8_t type, uint8_t mode){
 	
 	res_context->stages = log_2(samp);
 	
+	res_context->bit_rev_indices = (uint32_t*) calloc(samp,sizeof(uint32_t));
+	
+	uint32_t i = 0;
+	for(;i<samp;i++){ //initialize look up table for bit reversed indices
+		res_context->bit_rev_indices[i] = bit_reversal(samp,i);
+	}
+	
 	if(type>=0&&type<4){ //determine the data type of the FFT
 		res_context->type = type;
 		res_context->twiddle_factors = compute_twiddles(samp,type,mode);
