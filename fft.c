@@ -95,7 +95,7 @@ void bit_reverse_float(CPLX_SAMPLES* buffer){
 			index = bit_reversal(samples,i);
 			if(index>i){ //<- this is a god damn motherfucking trap!
 			
-				tmp_re = re[i];
+				tmp_re = re[i]; //simple exchange ...
 				tmp_im = im[i];
 			
 				re[i] = re[index];

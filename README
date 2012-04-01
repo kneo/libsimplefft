@@ -17,3 +17,16 @@ What's going to work?
 - Android build targed is scheduled as well
 - bit reversal is going to be cached
 - further low latency optimations are going to be made
+
+You said its fast how fast is it?
+-----------------------------------
+it would be a FFT if it would'nt be fast so here some facts:
+Test machine : Intel i5 520M 2.4 GHz @ 4GB RAM running ubuntu linux 3.0.0.17
+
+A dash "-" means there are no time values since clock() returned zero.
+This are single precision calculations, if the further types are available, there
+going to be added here. If I manage to port it to ARM there will be a benchmark too.
+
+samples       : 1024 2048 4096 8192 16384 32768 65536 131072 262144 524288 1048576 2097152
+Exec-Time(ms) :   -    -    -    -     -     20    20     50    120    280     780    1760
+
