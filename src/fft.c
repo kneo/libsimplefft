@@ -1,3 +1,23 @@
+/*
+*This is a part of libsimplefft
+*
+* Copyright (C) 2012  Kevin Krüger (kkevin@gmx.net)
+* 
+* libsimplefft is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+* 
+* libsimplefft is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+* 
+* You should have received a copy of the GNU Lesser General Public
+* License along with libsimplefft; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+*/
+
 #include "fft.h"
 
 void fft_float(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
@@ -254,18 +274,19 @@ void bit_reverse_float(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 		uint32_t index;
 		
 		float tmp_re,tmp_im;
+		float norm = (context->mode == FFT_MODE_INVERSE) ? (1.0/ (float) samples) : 1;
 		
 		for(;i < buffer->length;i++){
 			index = context->bit_rev_indices[i];//bit_reversal(samples,i);//
-			if(index>i){ //<- this is a god damn motherfucking trap!
+			if(index>=i){ //<- this is a god damn motherfucking trap!
 				tmp_re = re[i]; //simple exchange ...
 				tmp_im = im[i];
 			
-				re[i] = re[index];
-				im[i] = im[index];
+				re[i] = re[index] * norm;
+				im[i] = im[index] * norm;
 				
-				re[index] = tmp_re;
-				im[index] = tmp_im;
+				re[index] = tmp_re * norm;
+				im[index] = tmp_im * norm;
 			}
 		}
 	}
@@ -283,17 +304,19 @@ void bit_reverse_double(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 		
 		double tmp_re,tmp_im;
 		
+		double norm = (context->mode == FFT_MODE_INVERSE) ? (1.0/ (float) samples) : 1;
+		
 		for(;i < buffer->length;i++){
 			index = context->bit_rev_indices[i];//bit_reversal(samples,i);//
-			if(index>i){ //<- this is a god damn motherfucking trap!
+			if(index>=i){ //<- this is a god damn motherfucking trap!
 				tmp_re = re[i]; //simple exchange ...
 				tmp_im = im[i];
 			
-				re[i] = re[index];
-				im[i] = im[index];
+				re[i] = re[index]*norm;
+				im[i] = im[index]*norm;
 				
-				re[index] = tmp_re;
-				im[index] = tmp_im;
+				re[index] = tmp_re*norm;
+				im[index] = tmp_im*norm;
 			}
 		}
 	}
@@ -311,17 +334,22 @@ void bit_reverse_int(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 		
 		int16_t tmp_re,tmp_im;
 		
+		
+		//since we iterating throught this array anyways, we can normalise it in case
+		//of the iFFT as well. Saves some redundant loop calls though
+		float norm = (context->mode == FFT_MODE_INVERSE) ? (1.0/ (float) samples) : 1;
+		
 		for(;i < buffer->length;i++){
 			index = context->bit_rev_indices[i];//bit_reversal(samples,i);//
-			if(index>i){ //<- this is a god damn motherfucking trap!			
+			if(index>=i){ //<- this is a god damn motherfucking trap!			
 				tmp_re = re[i]; //simple exchange ...
 				tmp_im = im[i];
 			
-				re[i] = re[index];
-				im[i] = im[index];
+				re[i] = re[index]*norm;
+				im[i] = im[index]*norm;
 				
-				re[index] = tmp_re;
-				im[index] = tmp_im;
+				re[index] = tmp_re*norm;
+				im[index] = tmp_im*norm;
 			}
 		}
 	}
@@ -333,7 +361,7 @@ void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 			if(context->mode==FFT_MODE_NORMAL){
 				switch(context->type){
 					case CPLX_TYPE_SP:
-						printf("performing fft with %d samples single precision\n",context->samples);
+						//printf("performing fft with %d samples single precision\n",context->samples);
 						//printf("clocks %d\n",(int) clock());
 						buffer->exec_time = clock();
 						fft_float(context,buffer);
@@ -342,7 +370,7 @@ void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 					break;
 					
 					case CPLX_TYPE_DP:
-						printf("performing fft with %d samples double precision\n",context->samples);
+						//printf("performing fft with %d samples double precision\n",context->samples);
 						//printf("clocks %d\n",(int) clock());
 						buffer->exec_time = clock();
 						fft_double(context,buffer);
@@ -351,7 +379,7 @@ void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 					break;
 					
 					case CPLX_TYPE_INT:
-						printf("performing fft with %d samples double precision\n",context->samples);
+						//printf("performing fft with %d samples double precision\n",context->samples);
 						//printf("clocks %d\n",(int) clock());
 						buffer->exec_time = clock();
 						fft_int(context,buffer);
@@ -360,8 +388,34 @@ void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 					break;
 				}
 			} else {
-				
-			
+				switch(context->type){
+					case CPLX_TYPE_SP:
+						printf("performing ifft with %d samples single precision\n",context->samples);
+						//printf("clocks %d\n",(int) clock());
+						buffer->exec_time = clock();
+						fft_float(context,buffer);
+						bit_reverse_float(context,buffer);
+						buffer->exec_time = clock() - buffer->exec_time;
+					break;
+					
+					case CPLX_TYPE_DP:
+						//printf("performing fft with %d samples double precision\n",context->samples);
+						//printf("clocks %d\n",(int) clock());
+						buffer->exec_time = clock();
+						fft_double(context,buffer);
+						bit_reverse_double(context,buffer);
+						buffer->exec_time = clock() - buffer->exec_time;
+					break;
+					
+					case CPLX_TYPE_INT:
+						//printf("performing fft with %d samples double precision\n",context->samples);
+						//printf("clocks %d\n",(int) clock());
+						buffer->exec_time = clock();
+						fft_int(context,buffer);
+						bit_reverse_int(context,buffer);
+						buffer->exec_time = clock() - buffer->exec_time;
+					break;
+				}
 			}			
 		} else {
 			
