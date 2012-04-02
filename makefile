@@ -31,7 +31,7 @@ alloc.o:
 	$(CC) $(ARGS) -o alloc.o -c src/alloc.c
 	
 clean:
-	$(RM) -f *.o *.so
+	$(RM) -f *.o build/include/libsimplefft/*.h build/lib/*.so
 	
 install: libsimplefft.so
 	$(CP) -f build/lib/libsimplefft.so $(INSTALL_PREFIX)
