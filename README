@@ -1,44 +1,136 @@
-libsimplefft
----------------------
+Table of Contents:
+==================
+1. Introduction
+
+2. What's working
+
+3. What's going to work
+
+4. How to use it
+
+   4.1. Building and Installing
+   
+   4.2. Initializing
+   
+   4.3. Assign Sample Data
+   
+   4.4. Perform the FFT
+   
+5. You said its fast how fast is it?
+
+6. License
+
+1. Introduction of libsimplefft
+===============================
 This library is designed to run as fast as possible.
 Several optimization are implemented by default.
 This implementation uses the Radix 2 decimation in frequency Fast Fourier Transform (Radix 2 DIF FFT).
 Its an inplace computation using precomputed twiddle factors.
 There are no parallel threads working. This implementation is designed to be as fundamental as possible.
 
-What's working
----------------------
+2. What's working
+===============================
 - single precision  \
 - double precision   > FFTs are working
 - integer precision /
 
-What's going to work?
-----------------------
+3. What's going to work?
+===============================
 - ifft is not implemented by now but will be available soon as well
 - JNI interface for java access is going to be implemented
 - Android build targed is scheduled as well
 - further low latency optimations are going to be made
 
-How to use it
-----------------------
+4. How to use it
+===============================
+
+4.1. Building and installing
+-------------------------------
+
 At first checkout the source repository and build the source code using
 
-make
+	make
 
 you can edit the INSTALL_PREFIX variable within the makefile to fit your
 environment.
 after finished just run
 
-sudo make install
+	sudo make install
 
-to copy the library to the defined install location
+to copy the library to the defined install location.
 
+standard include the file
 
-You said its fast how fast is it?
------------------------------------
+	libsimplefft/libsimplefft.h
+	
+4.2. Initializing
+-------------------------------
+Allmost done last step is to allocate a FFT context, which computes
+necessary twiddlefactors and does some other caching work for you.
+The function lsfft_init does that for you, it returns a pointer to a valid
+FFT_CONTEXT
+you need to specify several parameters in order to get this thing kicking:
+
+	1.) enter the samples the FFT is going to be processed. Remind that a power of 
+	    2 size is required!
+
+	2.) Specify the mode of the FFT, there are for choise:
+
+		FFT_TYPE_NORMAL: which performes the FFT in the Time to Frequency domain direction
+
+		FFT_TYPE_INVERSE: which performes the FFT in the Frequency to Time domain direction
+
+	3.) Specify the data, which is going to be processed:
+
+		CPLX_TYPE_SP : which denotes a single precision FFT (float)
+
+		CPLX_TYPE_DP : which denotes a double precision FFT (double)
+
+		CPLX_TYPE_INT: which denotes a 16 bit signed integer FFT (uint16_t)
+
+Now the FFT is fully initialized. To perform it on some data you need to allocate
+a CPLX_SAMPLES structure or a pointer to its location. Easiest way to do so is
+using the lsfft_alloc_complex_buffer function. Remind that you have to
+specify the datatype as well.
+Here you have to specify two parameters to get a valid structure:
+
+	1.) the sample size which needs to be of the same size as you specified
+		at the FFT initialization.
+
+	2.) the data type of the sample going to be processed.
+		This is also has to be the same as at the FFT initialization
+
+The function lsfft_alloc_complex_buffer returns the a pointer to the allocated structure.
+
+4.3. Assign Sample Data
+-------------------------------
+now you are ready to go. To assign your data you can cast the re and im field of the
+CPLX_SAMPLES structure to a fiting pointer to $TYPE pointer.
+
+For example if you're using single precision FFT you need to cast it to a float pointer:
+
+	CPLX_SAMPLES* samples;
+
+	//initialization ... allocation etc
+
+	float* re = (float*)samples->re;
+	float* im = (float*)samples->im;
+
+now you can access the real and imaginary memory by using the [] operator.
+Remind that you have to keep track of you allocations, and so of the datatypes!
+
+4.4. Perform the FFT
+--------------------------------
+The last step is to call the lsfft_perform function assigning you FFT_CONTEXT
+and your CPLX_SAMPLES pointers, to let the FFT do its work. After returning
+the result is stored within the same buffer you assigned to call lsfft_perform
+since its an in place FFT.
+
+5. You said its fast how fast is it?
+========================================
 it would be a FFT if it would'nt be fast so here some facts:
 Test machine : 
-	Intel i5 520M 2.4 GHz
+	Intel i5 430M 2.4 GHz
 	4GB RAM 
 	Ubuntu linux 3.0.0.17 x64
 
@@ -60,4 +152,7 @@ going to be added here. If I manage to port it to ARM there will be a benchmark 
 	 524288 |    280
 	1048576 |    780
 
+6. License
+========================================
 
+not available yet, for further questions contact me : kkevin@gmx.net
