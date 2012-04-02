@@ -1,6 +1,7 @@
 CC=gcc
 RM=rm
 CP=cp
+MKDIR=mkdir
 
 INSTALL_PREFIX=/usr/lib/
 INCLUDE_PREFIX=/usr/include/
@@ -8,7 +9,10 @@ INCLUDE_PREFIX=/usr/include/
 ARGS=--shared -fPIC -lm
 
 libsimplefft.so: alloc.o util.o fft.o twiddle.o libsimplefft.o
+	$(MKDIR) -p build/lib/
+	$(MKDIR) -p build/include/libsimplefft/
 	$(CC) $(ARGS) -o build/lib/libsimplefft.so alloc.o util.o fft.o twiddle.o libsimplefft.o
+
 	$(CP) -f src/*.h build/include/libsimplefft/
 	
 libsimplefft.o:
