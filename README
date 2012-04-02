@@ -19,6 +19,21 @@ What's going to work?
 - Android build targed is scheduled as well
 - further low latency optimations are going to be made
 
+How to use it
+----------------------
+At first checkout the source repository and build the source code using
+
+make
+
+you can edit the INSTALL_PREFIX variable within the makefile to fit your
+environment.
+after finished just run
+
+sudo make install
+
+to copy the library to the defined install location
+
+
 You said its fast how fast is it?
 -----------------------------------
 it would be a FFT if it would'nt be fast so here some facts:
@@ -44,4 +59,5 @@ going to be added here. If I manage to port it to ARM there will be a benchmark 
 	 262144 |    120
 	 524288 |    280
 	1048576 |    780
+
 

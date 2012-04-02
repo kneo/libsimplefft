@@ -258,7 +258,6 @@ void bit_reverse_float(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 		for(;i < buffer->length;i++){
 			index = context->bit_rev_indices[i];//bit_reversal(samples,i);//
 			if(index>i){ //<- this is a god damn motherfucking trap!
-			
 				tmp_re = re[i]; //simple exchange ...
 				tmp_im = im[i];
 			
@@ -287,7 +286,6 @@ void bit_reverse_double(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 		for(;i < buffer->length;i++){
 			index = context->bit_rev_indices[i];//bit_reversal(samples,i);//
 			if(index>i){ //<- this is a god damn motherfucking trap!
-			
 				tmp_re = re[i]; //simple exchange ...
 				tmp_im = im[i];
 			
@@ -315,8 +313,7 @@ void bit_reverse_int(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 		
 		for(;i < buffer->length;i++){
 			index = context->bit_rev_indices[i];//bit_reversal(samples,i);//
-			if(index>i){ //<- this is a god damn motherfucking trap!
-			
+			if(index>i){ //<- this is a god damn motherfucking trap!			
 				tmp_re = re[i]; //simple exchange ...
 				tmp_im = im[i];
 			

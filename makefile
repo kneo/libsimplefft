@@ -3,29 +3,32 @@ RM=rm
 CP=cp
 
 INSTALL_PREFIX=/usr/lib/
+INCLUDE_PREFIX=/usr/include/
 
 ARGS=--shared -fPIC -lm
 
 libsimplefft.so: alloc.o util.o fft.o twiddle.o libsimplefft.o
-	$(CC) $(ARGS) -o libsimplefft.so alloc.o util.o fft.o twiddle.o libsimplefft.o
+	$(CC) $(ARGS) -o build/lib/libsimplefft.so alloc.o util.o fft.o twiddle.o libsimplefft.o
+	$(CP) -f src/*.h build/include/libsimplefft/
 	
 libsimplefft.o:
-	$(CC) $(ARGS) -o libsimplefft.o -c libsimplefft.c
+	$(CC) $(ARGS) -o libsimplefft.o -c src/libsimplefft.c
 	
 twiddle.o:
-	$(CC) $(ARGS) -o twiddle.o -c twiddle.c
+	$(CC) $(ARGS) -o twiddle.o -c src/twiddle.c
 
 util.o:
-	$(CC) $(ARGS) -o util.o -c util.c
+	$(CC) $(ARGS) -o util.o -c src/util.c
 	
 fft.o:
-	$(CC) $(ARGS) -o fft.o -c fft.c
+	$(CC) $(ARGS) -o fft.o -c src/fft.c
 	
 alloc.o:
-	$(CC) $(ARGS) -o alloc.o -c alloc.c
+	$(CC) $(ARGS) -o alloc.o -c src/alloc.c
 	
 clean:
 	$(RM) -f *.o *.so
 	
 install: libsimplefft.so
-	$(CP) -f libsimplefft.so $(INSTALL_PREFIX)
+	$(CP) -f build/lib/libsimplefft.so $(INSTALL_PREFIX)
+	$(CP) -r -f build/include/ $(INCLUDE_PREFIX)
