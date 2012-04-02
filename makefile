@@ -35,4 +35,4 @@ clean:
 	
 install: libsimplefft.so
 	$(CP) -f build/lib/libsimplefft.so $(INSTALL_PREFIX)
-	$(CP) -r -f build/include/ $(INCLUDE_PREFIX)
+	$(CP) -r -f build/include/libsimplefft/ $(INCLUDE_PREFIX)
