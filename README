@@ -1,5 +1,6 @@
 Table of Contents:
 ==================
+
 1. Introduction
 2. What's working
 3. What's going to work
@@ -9,7 +10,7 @@ Table of Contents:
    4.3. Assign Sample Data
    4.4. Perform the FFT
 5. You said its fast how fast is it?
-6. License
+6. License (LGPL)
 
 1. Introduction of libsimplefft
 ===============================

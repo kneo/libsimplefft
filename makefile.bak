@@ -3,32 +3,33 @@ RM=rm
 CP=cp
 MKDIR=mkdir
 
+SOURCE_DIR=libsimplefft
+JNI_DIR=jsimplefft
 INSTALL_PREFIX=/usr/lib/
 INCLUDE_PREFIX=/usr/include/
 
 ARGS=--shared -fPIC
 
-libsimplefft.so: alloc.o util.o fft.o twiddle.o libsimplefft.o
+libsimplefft.so: clean alloc.o util.o fft.o twiddle.o libsimplefft.o
 	$(MKDIR) -p build/lib/
 	$(MKDIR) -p build/include/libsimplefft/
 	$(CC) $(ARGS) -lm -o build/lib/libsimplefft.so alloc.o util.o fft.o twiddle.o libsimplefft.o
+	$(CP) -f $(SOURCE_DIR)/*.h build/include/libsimplefft/
 
-	$(CP) -f src/*.h build/include/libsimplefft/
-	
 libsimplefft.o:
-	$(CC) $(ARGS) -o libsimplefft.o -c src/libsimplefft.c
+	$(CC) $(ARGS) -o libsimplefft.o -c $(SOURCE_DIR)/libsimplefft.c
 	
 twiddle.o:
-	$(CC) $(ARGS) -o twiddle.o -c src/twiddle.c
+	$(CC) $(ARGS) -o twiddle.o -c $(SOURCE_DIR)/twiddle.c
 
 util.o:
-	$(CC) $(ARGS) -o util.o -c src/util.c
+	$(CC) $(ARGS) -o util.o -c $(SOURCE_DIR)/util.c
 	
 fft.o:
-	$(CC) $(ARGS) -o fft.o -c src/fft.c
+	$(CC) $(ARGS) -o fft.o -c $(SOURCE_DIR)/fft.c
 	
 alloc.o:
-	$(CC) $(ARGS) -o alloc.o -c src/alloc.c
+	$(CC) $(ARGS) -o alloc.o -c $(SOURCE_DIR)/alloc.c
 	
 clean:
 	$(RM) -f *.o build/include/libsimplefft/*.h build/lib/*.so
