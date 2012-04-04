@@ -24,6 +24,7 @@ This implementation is designed to be as fundamental as possible.
 
 2. What's working
 ===============================
+- GNU Auto Build
 - FFT and iFFT in single, double and integer precision are implemented
 
 3. What's going to work?
@@ -31,33 +32,46 @@ This implementation is designed to be as fundamental as possible.
 - JNI interface for java access is going to be implemented
 - Android build targed is scheduled as well
 - further low latency optimations are going to be made
-- make this library a gnu build system conform library
+- cast FFTs into another data precision type 
 
 4. How to use it
 ===============================
 
 4.1. Building and installing
 -------------------------------
+At first checkout the source repository.
+The current release is shipped with a GNU Auto Build system.
+In order to build use:
 
-At first checkout the source repository and build the source code using
+	./autogen.sh
+	
+and followed if finished by:
+
+	./configure
+
+to generate required make files.
+Then run:
 
 	make
 
-you can edit the INSTALL_PREFIX variable within the makefile to fit your
-environment. After finished just run
+After finished just run
 
 	sudo make install
 
-to copy the library to the defined install location.
+To install the library to you environments install prefix.
+You may change it on the ./configure call to your deeds.
 
-standard include the file by
+Standard include the file by
 
 	#include<libsimplefft/libsimplefft.h>
 	
 4.2. Initializing
 -------------------------------
+
+NOTE: also check out the header files for further information!
+
 Allmost done last step is to allocate a FFT context, which computes
-necessary twiddlefactors and does some other caching work for you.
+necessary twiddle factors and does some other caching work for you.
 The function lsfft_init does that for you, it returns a pointer to a valid
 FFT_CONTEXT
 you need to specify several parameters in order to get this thing kicking:
@@ -76,7 +90,7 @@ you need to specify several parameters in order to get this thing kicking:
 		CPLX_TYPE_DP : which denotes a double precision FFT (double)
 		CPLX_TYPE_INT: which denotes a 16 bit signed integer FFT (uint16_t)
 
-Now the FFT is fully initialized. 
+Now the FFT is fully initialized.
 To perform it on some data you need to allocate a CPLX_SAMPLES structure
 or a pointer to its location.
 Easiest way to do so is using the lsfft_alloc_complex_buffer function.
@@ -106,12 +120,12 @@ For example if you're using single precision FFT you need to cast it to a float 
 	float* re = (float*)samples->re;
 	float* im = (float*)samples->im;
 
-now you can access the real and imaginary memory by using the [] operator.
-Remind that you have to keep track of you allocations, and so of the datatypes!
+now you can access the real and imaginary part memory by using the [] operator.
+Remind that you have to keep track of your allocations, and so of the datatypes!
 
 4.4. Perform the FFT
 --------------------------------
-The last step is to call the lsfft_perform function assigning you FFT_CONTEXT
+The last step is to call the lsfft_perform function assigning your FFT_CONTEXT
 and your CPLX_SAMPLES pointers, to let the FFT do its work. After returning
 the result is stored within the same buffer you assigned to call lsfft_perform
 since its an in place FFT.
