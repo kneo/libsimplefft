@@ -1,6 +1,5 @@
 Table of Contents:
 ==================
-
 1. Introduction
 2. What's working
 3. What's going to work
@@ -22,17 +21,26 @@ It's an in place algorithmus using precomputed twiddle factors.
 There are no parallel threads working.
 This implementation is designed to be as fundamental as possible.
 
+Its a paper and pen implementation by myself.
+So it is not ment to compete with other even more faster implementations.
+I implemented this library just for fun and my scientific curiosity and 
+the urge to find out how this thing manage to be so much faster than plain
+DFT implementation. Well in short I found it out and I wanted to share my
+results. So have fun looking through the code or use it for your projects.
+
 2. What's working
 ===============================
 - GNU Auto Build
-- FFT and iFFT in single, double and integer precision are implemented
+- FFT and iFFT for single, double and integer precision are implemented
 
 3. What's going to work?
 ===============================
 - JNI interface for java access is going to be implemented
 - Android build targed is scheduled as well
-- further low latency optimations are going to be made
+- further low latency optimations
 - cast FFTs into another data precision type 
+- I consider a parallized version running several threads,
+  but no commitment on that one.
 
 4. How to use it
 ===============================
@@ -44,12 +52,22 @@ The current release is shipped with a GNU Auto Build system.
 In order to build use:
 
 	./autogen.sh
-	
+
 and followed if finished by:
 
 	./configure
 
-to generate required make files.
+to install the library to your install prefix.
+You may change it on the ./configure call to your deeds.
+
+	Consider:
+	./configure --help
+	for more information.
+
+to generate required make files. You can still use
+the old makefile by renaming "makefile.bak" into
+"makefile". But I recommend using the auto build
+way of building the library.
 Then run:
 
 	make
@@ -58,31 +76,29 @@ After finished just run
 
 	sudo make install
 
-To install the library to you environments install prefix.
-You may change it on the ./configure call to your deeds.
-
+4.2. Initializing
+-------------------------------
 Standard include the file by
 
 	#include<libsimplefft/libsimplefft.h>
-	
-4.2. Initializing
--------------------------------
 
 NOTE: also check out the header files for further information!
 
-Allmost done last step is to allocate a FFT context, which computes
+Allmost done next step is to allocate a FFT context, which computes
 necessary twiddle factors and does some other caching work for you.
 The function lsfft_init does that for you, it returns a pointer to a valid
-FFT_CONTEXT
-you need to specify several parameters in order to get this thing kicking:
+FFT_CONTEXT you need to specify several parameters in order to get
+this thing to work:
 
-	1.) enter the samples the FFT is going to be processed. Remind that a power of 
-	    2 size is required!
+	1.) enter the samples the FFT is going to be processed.
+		Remind that a power of 2 size is required!
 
 	2.) Specify the mode of the FFT, there are for choise:
 
-		FFT_TYPE_NORMAL: which performes the FFT in the Time to Frequency domain direction
-		FFT_TYPE_INVERSE: which performes the FFT in the Frequency to Time domain direction
+		FFT_TYPE_NORMAL : which performes the FFT
+		                  in the Time to Frequency domain direction
+		FFT_TYPE_INVERSE: which performes the inverse FFT
+		                  in the Frequency to Time domain direction
 
 	3.) Specify the data, which is going to be processed:
 
@@ -91,8 +107,10 @@ you need to specify several parameters in order to get this thing kicking:
 		CPLX_TYPE_INT: which denotes a 16 bit signed integer FFT (uint16_t)
 
 Now the FFT is fully initialized.
-To perform it on some data you need to allocate a CPLX_SAMPLES structure
-or a pointer to its location.
+
+To perform it on some data you need to allocate a CPLX_SAMPLES structure,
+better a pointer to its location.
+
 Easiest way to do so is using the lsfft_alloc_complex_buffer function.
 Remind that you have to specify the datatype as well.
 
@@ -104,14 +122,16 @@ Here you have to specify two parameters to get a valid structure:
 	2.) the data type of the sample going to be processed.
 		This is also has to be the same as at the FFT initialization
 
-The function lsfft_alloc_complex_buffer returns the a pointer to the allocated structure.
+The function lsfft_alloc_complex_buffer returns the a pointer to the allocated
+structure.
 
 4.3. Assign Sample Data
 -------------------------------
-now you are ready to go. To assign your data you can cast the re and im field of the
-CPLX_SAMPLES structure to a fiting pointer to $TYPE pointer.
+now you are ready to go. To assign your data you can cast the re and im field
+of the CPLX_SAMPLES structure to a fiting pointer to $TYPE pointer.
 
-For example if you're using single precision FFT you need to cast it to a float pointer:
+For example if you're using single precision FFT you need to cast it to a
+float pointer:
 
 	CPLX_SAMPLES* samples;
 
@@ -120,8 +140,9 @@ For example if you're using single precision FFT you need to cast it to a float 
 	float* re = (float*)samples->re;
 	float* im = (float*)samples->im;
 
-now you can access the real and imaginary part memory by using the [] operator.
-Remind that you have to keep track of your allocations, and so of the datatypes!
+now you can access the real and imaginary part components of the vector
+by using the [] operator. Remind that you have to keep track of your
+allocations, and so of the datatypes!
 
 4.4. Perform the FFT
 --------------------------------
