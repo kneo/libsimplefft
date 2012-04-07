@@ -47,7 +47,7 @@ void calculate_double(CPLX_SAMPLES* samples,uint8_t mode){
 	
 	uint32_t N = samples->length << 1;
 	
-	int8_t sign = mode?-1:1;
+	int8_t sign = mode==0?1:-1;
 	
 	int i=0;
 	for(;i<samples->length;i++){
