@@ -15,14 +15,17 @@ AC_SUBST(LIB_AGE)
 AC_CHECK_LIB(m, sin)
 AC_CHECK_LIB(m, cos)
 
+AC_ARG_VAR([JDK_HOME], [Java Development Kit (JDK) location])
+AC_ARG_ENABLE([java-feature],[AC_HELP_STRING([--disable-java-feature],[disable Java feature])])
+AS_IF([test X$enable_java_feature != Xno],[AS_IF([test -z "$JDK_HOME"],[AC_MSG_FAILURE([JDK_HOME has not been set. JDK_HOME must be set at run time to locate libjvm.])])
+])
 
 AM_INIT_AUTOMAKE
-
 AC_PROG_CC
 
 AC_PROG_LIBTOOL
 
 AC_CONFIG_HEADER(config.h)
-AC_CONFIG_FILES(Makefile libsimplefft/Makefile)
 
+AC_CONFIG_FILES(Makefile libsimplefft/Makefile simplefft4j/Makefile)
 AC_OUTPUT

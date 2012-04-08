@@ -3,11 +3,14 @@
 
 #define MAX_FFT_HANDLES (100)
 
+#include<stdint.h>
+#include<stdlib.h>
+#include<stdio.h>
+#include"../libsimplefft/defines.h"
+
 typedef struct FFT_HANDLES{
 	uint32_t c_handles;
-	void* storage[MAX_FFT_HANDLES];
+	FFT_CONTEXT* storage[MAX_FFT_HANDLES];
 }FFT_HANDLES;
-
-extern static FFT_HANDLES* fft_handles;
 
 #endif
