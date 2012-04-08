@@ -3,7 +3,7 @@ AC_INIT(libsimplefft, 0.5.0, kkevin@gmx.net)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR(m4)
 AC_CONFIG_SRCDIR(libsimplefft/libsimplefft.h)
-
+AC_CONFIG_SRCDIR(simplefft4j/f4jdefines.h)
 LIB_CURRENT=0
 LIB_REVISION=5
 LIB_AGE=0
