@@ -25,15 +25,15 @@ public class FFTProcessor{
 	}
 
 	public static void performFFT(int handle, float[] re, float[] im){
-
+		performFFTf(handle,re,im);
 	}
 
 	public static void performFFT(int handle, double[] re, double[] im){
-
+		performFFTd(handle,re,im);
 	}
 
 	public static void performFFT(int handle, short[] re, short[] im){
-
+		performFFTi(handle,re,im);
 	}
 	
 	public static void main(String[] argV){
@@ -41,8 +41,29 @@ public class FFTProcessor{
 		//System.loadLibrary("simplefft");		
 		System.loadLibrary("simplefft4j");
 	
-		int handle = FFTProcessor.initializeFFT(1024,FFTProcessor.FFT_MODE_NORMAL,FFTProcessor.CPLX_TYPE_SP);
+		int size = 8;
+	
+		int handle = FFTProcessor.initializeFFT(size,FFTProcessor.FFT_MODE_NORMAL,FFTProcessor.CPLX_TYPE_INT);
+
+		short[] re = new short[size];
+		short[] im = new short[size];
+		
+		for(int i = 0;i<size;i++){
+			re[i] = (short)i;
+		}
+		
+		long time = System.currentTimeMillis();
+		performFFT(handle,re,im);
+		time = System.currentTimeMillis() - time;
+		System.out.println("runtime : "+time+"ms");
+		
+		
+
+		for(int i = 0;i<size;i++){
+			System.out.printf("%d + %d * i\n",re[i],im[i]);
+		}
 		
 		System.out.println("handle retrieved : "+handle);
 	}
 }
+
