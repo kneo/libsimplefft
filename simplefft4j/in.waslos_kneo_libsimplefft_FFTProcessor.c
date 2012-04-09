@@ -6,9 +6,9 @@
 static FFT_HANDLES* fft_handles;
 
 JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFFTContext(JNIEnv * env, jobject class, jint samples, jbyte mode, jbyte type){
-	printf("initializing fft...\n");
+	//printf("initializing fft...\n");
 	if(!fft_handles){
-		printf("first initialization allocating fft context\n");
+		//printf("first initialization allocating fft context\n");
 		fft_handles = (FFT_HANDLES*)calloc(1,sizeof(FFT_HANDLES));
 	}
 	
