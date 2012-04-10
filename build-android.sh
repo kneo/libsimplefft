@@ -5,10 +5,7 @@
 
 NDK_ROOT="/home/kneo/Documents/Android/android_sdk_ndk/android-ndk-r7b"
 
-INSTALL_DIR="../jni/libsimplefft"
-SRC_DIR="."
-
-cd $SRC_DIR
+INSTALL_DIR="`pwd`/jni/libsimplefft"
 
 export PATH="$NDK_ROOT/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin/:$PATH"
 export SYS_ROOT="$NDK_ROOT/platforms/android-8/arch-arm/"
