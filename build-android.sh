@@ -16,7 +16,7 @@ export RANLIB="arm-linux-androideabi-ranlib"
 export STRIP="arm-linux-androideabi-strip"
 
 mkdir -p $INSTALL_DIR
-./configure --host=arm-eabi --prefix=$INSTALL_DIR LIBS="-lc -lm -lgcc"
+./configure --host=arm-eabi --prefix=$INSTALL_DIR LIBS="-lc -lm -lgcc" JDK_HOME="/home/kneo/Documents/Android/android_sdk_ndk/android-ndk-r7b/platforms/android-8/arch-arm/usr/"
 
 make
 make install
