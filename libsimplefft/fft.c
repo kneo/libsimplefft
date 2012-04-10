@@ -357,11 +357,13 @@ void bit_reverse_int(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 
 void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 	if(context && buffer){
+		printf("context type:%d size:%d mode:%d \n", context->type,context->samples,context->mode);
+	
 		if(context->samples == buffer->length){
 			if(context->mode==FFT_MODE_NORMAL){
 				switch(context->type){
 					case CPLX_TYPE_SP:
-						//printf("performing fft with %d samples single precision\n",context->samples);
+						printf("performing fft with %d samples single precision\n",context->samples);
 						//printf("clocks %d\n",(int) clock());
 						buffer->exec_time = clock();
 						fft_float(context,buffer);
