@@ -19,7 +19,7 @@ export RANLIB="arm-linux-androideabi-ranlib"
 export STRIP="arm-linux-androideabi-strip"
 
 mkdir -p $INSTALL_DIR
-./configure --host=arm-eabi --prefix=$INSTALL_DIR LIBS="-lc -lgcc"
+./configure --host=arm-eabi --prefix=$INSTALL_DIR LIBS="-lc -lm -lgcc"
 
 make
 make install
