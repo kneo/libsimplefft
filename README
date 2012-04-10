@@ -32,10 +32,10 @@ results. So have fun looking through the code or use it for your projects.
 ===============================
 - GNU Auto Build
 - FFT and iFFT for single, double and integer precision are implemented
+- JNI Access
 
 3. What's going to work?
 ===============================
-- JNI interface for java access is going to be implemented
 - Android build targed is scheduled as well
 - further low latency optimations
 - cast FFTs into another data precision type 
