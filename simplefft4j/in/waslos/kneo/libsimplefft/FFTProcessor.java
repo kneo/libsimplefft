@@ -9,6 +9,7 @@ public class FFTProcessor{
 	public static final byte CPLX_TYPE_INT = 2;
 	
 	static{
+		System.loadLibrary("simplefft");
 		System.loadLibrary("simplefft4j");	
 	}
 
