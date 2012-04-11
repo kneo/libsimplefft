@@ -1,4 +1,3 @@
-# SHA1_Library/jni/Android.mk
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
