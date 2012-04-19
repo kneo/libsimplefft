@@ -20,9 +20,6 @@ public class FFTProcessor{
 	private static native void performFFTd(int handle, double[] re, double[] im);
 	private static native void performFFTi(int handle, short[]  re, short[]  im);
 
-
-
-
 	public static int initializeFFT(int samples,byte mode, byte type){
 		return FFTProcessor.createFFTContext(samples,mode,type);
 	}

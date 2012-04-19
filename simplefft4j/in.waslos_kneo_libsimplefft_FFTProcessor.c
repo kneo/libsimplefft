@@ -13,15 +13,21 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFFTCo
 	}
 	
 	if(fft_handles->c_handles<MAX_FFT_HANDLES){
+
 		FFT_CONTEXT* context = lsfft_init(samples,type,mode);
-		
+
 		if(!context) return -1;
-		
-		uint32_t handle = fft_handles->c_handles;
-		fft_handles->storage[handle] = context;
+
+		uint32_t i = 0;
+
+		for(;i<MAX_FFT_HANDLES;i++) //find a free pointer
+			if(fft_handles->storage[i]==NULL)
+				break;
+
+		fft_handles->storage[i] = context;
 		fft_handles->c_handles++;
 		
-		return handle;
+		return i;
 	}
 	
 	return -1;
@@ -29,18 +35,16 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFFTCo
 
 JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_destroyFFTContext(JNIEnv * env, jobject class, jint handle){
 	if(fft_handles->c_handles>handle && fft_handles->storage[handle] != NULL){
-	
 		lsfft_destroy_context(fft_handles->storage[handle]);
-		
 		fft_handles->storage[handle]=NULL;
+		fft_handles->c_handles--;
 	}
-
 }
 
 JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTf(JNIEnv * env, jobject class, jint handle, jfloatArray re, jfloatArray im){
-	printf("performing FFT...");
+	//printf("performing FFT...");
 	if(fft_handles->c_handles > handle && fft_handles->storage[handle] != NULL){
-		printf("all set!\n");
+		//printf("all set!\n");
 		jfloat* fre = (*env)->GetFloatArrayElements(env, re, 0);
 		jfloat* fim = (*env)->GetFloatArrayElements(env, im, 0);
 		
@@ -89,7 +93,7 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTi
 		jshort* fim = (*env)->GetShortArrayElements(env, im, 0);
 		
 		FFT_CONTEXT* context = fft_handles->storage[handle];
-		
+
 		CPLX_SAMPLES samples;
 		
 		samples.type=context->type;
@@ -97,7 +101,7 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTi
 		
 		samples.re = (short*)fre;
 		samples.im = (short*)fim;
-		
+				
 		lsfft_perform(context,&samples);
 		
 		(*env)->ReleaseShortArrayElements(env, re, fre, 0);
