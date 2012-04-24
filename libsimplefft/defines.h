@@ -80,6 +80,6 @@ typedef struct CONVOLUTION_CONTEXT{
 	FFT_CONTEXT* ifft_context;
 	uint32_t samples;
 	CPLX_SAMPLES* kernel;
-}
+}CONVOLUTION_CONTEXT;
 
 #endif
