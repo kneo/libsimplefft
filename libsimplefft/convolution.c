@@ -23,7 +23,7 @@ CONVOLUTION_CONTEXT* lsfft_init_convolution(CPLX_SAMPLES* kernel){
 	if(kernel){
 	
 		//init fft of type of kernel
-		FFT_CONTEXT* context = lsfft_init(kernel->length,kernel->type,FFT_MODE_NORMAL);
+		FFT_CONTEXT* context  = lsfft_init(kernel->length,kernel->type,FFT_MODE_NORMAL);
 		FFT_CONTEXT* icontext = lsfft_init(kernel->length,kernel->type,FFT_MODE_INVERSE);
 		
 		if(!context || !icontext){
@@ -48,7 +48,7 @@ CONVOLUTION_CONTEXT* lsfft_init_convolution(CPLX_SAMPLES* kernel){
 	return NULL;
 }
 
-void perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signal){
+void lsfft_perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signal){
 	if(context && signal){
 		//compute the fft of the signal
 		lsfft_perform(context->fft_context,signal);
@@ -103,7 +103,7 @@ void perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signal){
 	}
 }
 
-void destroy_covolution_context(CONVOLUTION_CONTEXT* context){
+void lsfft_destroy_covolution_context(CONVOLUTION_CONTEXT* context){
 	if(context){
 		if(context->fft_context){
 			//destroy the fft context

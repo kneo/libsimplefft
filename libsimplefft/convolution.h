@@ -24,8 +24,8 @@
 
 CONVOLUTION_CONTEXT* lsfft_init_convolution(CPLX_SAMPLES* kernel);
 
-void perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signal);
+void lsfft_perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signal);
 
-void destroy_covolution_context(CONVOLUTION_CONTEXT* context);
+void lsfft_destroy_covolution_context(CONVOLUTION_CONTEXT* context);
 
 #endif
