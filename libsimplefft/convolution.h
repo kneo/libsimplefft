@@ -18,19 +18,14 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef ALLOC_H
-#define ALLOC_H
+#ifndef CONVOLUTION_H
+#define CONVOLUTION_H
+#include"libsimplefft.h"
 
-#include "libsimplefft.h"
+CONVOLUTION_CONTEXT* lsfft_init_convolution(CPLX_SAMPLES* kernel);
 
-//allocating functions
+void perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signal);
 
-/**allocates a buffer of complex numbers of type where type is one of the CPLX_TYPE_ defines above
-*/
-CPLX_SAMPLES* lsfft_alloc_complex_buffer(uint32_t samples, uint8_t type);
-
-/**frees a complex number buffer
-*/
-void lsfft_free_complex_buffer(CPLX_SAMPLES* buffer);
+void destroy_covolution_context(CONVOLUTION_CONTEXT* context);
 
 #endif

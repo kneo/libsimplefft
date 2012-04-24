@@ -34,6 +34,8 @@
 
 #include "fft.h"
 
+#include "convolution.h"
+
 /**Initializes a FFT context with samples and number type and mode
 *Specify the number of samples the FFT should perform. The more samples the better the frequency resolution is provided
 *Use the type and mode markers above to initialize the desired Fast Fourier Transform

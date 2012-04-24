@@ -57,6 +57,8 @@ typedef struct CPLX_SAMPLES{
 */
 #define CPLX_TYPE_INT (2)
 
+/**Holds data required to perform a FFT.
+*/
 struct FFT_CONTEXT;
 
 typedef struct FFT_CONTEXT{
@@ -67,5 +69,17 @@ typedef struct FFT_CONTEXT{
 	CPLX_SAMPLES* twiddle_factors;
 	uint32_t* bit_rev_indices;
 }FFT_CONTEXT;
+
+
+/**Holds the data required to perform a fast colvolution.
+*/
+struct CONVOLUTION_CONTEXT;
+typedef struct CONVOLUTION_CONTEXT{
+	uint8_t type;
+	FFT_CONTEXT* fft_context;
+	FFT_CONTEXT* ifft_context;
+	uint32_t samples;
+	CPLX_SAMPLES* kernel;
+}
 
 #endif
