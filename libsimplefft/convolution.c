@@ -37,7 +37,7 @@ CONVOLUTION_CONTEXT* lsfft_init_convolution(CPLX_SAMPLES* kernel){
 
 		res->type          = kernel->type;
 		res->fft_context   = context;
-		res->ifft_contexxt = icontext;
+		res->ifft_context  = icontext;
 		res->samples       = kernel->length;
 		res->kernel        = kernel;
 	
@@ -84,7 +84,7 @@ void perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signal){
 			
 			case CPLX_TYPE_SP:
 				for(;i<context->samples;i++){
-					float ftmp = sre[i];
+					float ftmp = fsre[i];
 					fsre[i] = re_mul_f(fsre[i],fsim[i],fkre[i],fkim[i]);
 					fsim[i] = im_mul_f(ftmp,fsim[i],fkre[i],fkim[i]);
 				}
@@ -92,7 +92,7 @@ void perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signal){
 			
 			case CPLX_TYPE_DP:
 				for(;i<context->samples;i++){
-					double dtmp = sre[i];
+					double dtmp = dsre[i];
 					dsre[i] = re_mul_d(dsre[i],dsim[i],dkre[i],dkim[i]);
 					dsim[i] = im_mul_d(dtmp,dsim[i],dkre[i],dkim[i]);
 				}
