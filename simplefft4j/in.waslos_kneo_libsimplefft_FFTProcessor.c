@@ -1,9 +1,30 @@
+/*
+*This is a part of libsimplefft
+*
+* Copyright (C) 2012  Kevin Krüger (kkevin@gmx.net)
+* 
+* libsimplefft is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+* 
+* libsimplefft is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+* 
+* You should have received a copy of the GNU Lesser General Public
+* License along with libsimplefft; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+*/
 #include "f4jdefines.h"
 
 #include "../libsimplefft/libsimplefft.h"
 #include "in_waslos_kneo_libsimplefft_FFTProcessor.h"
 
 static FFT_HANDLES* fft_handles;
+static CONVOLUTION_HANDLES* conv_handles;
+
 
 JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFFTContext(JNIEnv * env, jobject class, jint samples, jbyte mode, jbyte type){
 	//printf("initializing fft...\n");
@@ -89,6 +110,7 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTd
 
 JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTi(JNIEnv * env, jobject class , jint handle, jshortArray re, jshortArray im){
 	if(fft_handles->c_handles > handle && fft_handles->storage[handle] != NULL){
+	
 		jshort* fre = (*env)->GetShortArrayElements(env, re, 0);
 		jshort* fim = (*env)->GetShortArrayElements(env, im, 0);
 		
@@ -108,3 +130,67 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTi
 		(*env)->ReleaseShortArrayElements(env, im, fim, 0);
 	}
 }
+
+void init_conv_handles(void){
+	conv_handles = (CONVOLUTION_HANDLES*) calloc(1,sizeof(CONVOLUTION_HANDLES));
+}
+
+JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastConvolutionContext__I_3F(JNIEnv* env, jclass object, jint samples, jfloatArray kernel){
+	if(!conv_handles){
+		init_conv_handles();
+	}
+	
+	if(conv_handles->c_handles<MAX_CONV_HANDLES) return -1;
+	
+	//retrieve kernel
+	jsize len = (*env)->GetArrayLength(env, kernel);
+	float* fkernel = (float*) (*env)->GetFloatArrayElements(env, kernel, 0);
+
+	//create a new kernel buffer for complex processing
+	CPLX_SAMPLES* c_kernel = lsfft_alloc_complex_buffer(samples,CPLX_TYPE_SP);
+
+	//pointer to real part of the real part
+	float* re = (float*) c_kernel->re;
+
+	int i;
+
+	for(i=0;i<len;i++){
+		re[i] = fkernel[i];
+	}
+	
+	CONVOLUTION_CONTEXT* context = lsfft_init_convolution(c_kernel);
+	
+	for(i=0;i<MAX_CONV_HANDLES;i++){
+		if(conv_handles->storage[i]==NULL) break;
+	}
+	
+	conv_handles->storage[i] = context;
+	conv_handles->c_handles++;
+	
+	return i;
+}
+
+JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastConvolutionContext__I_3D(JNIEnv* env, jclass object, jint samples, jdoubleArray kernel){
+	
+}
+
+JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastConvolutionContext__I_3S(JNIEnv* env, jclass object, jint samples, jshortArray kernel){
+
+}
+
+JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFastConvolution__I_3F(JNIEnv* env, jclass object, jint handle, jfloatArray signal){
+	
+}
+
+JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFastConvolution__I_3D(JNIEnv* env, jclass object, jint handle, jdoubleArray signal){
+
+}
+
+JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFastConvolution__I_3S(JNIEnv* env, jclass object, jint handle, jshortArray signal){
+
+}
+
+JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_destroyFastConvolution(JNIEnv* env, jclass object, jint handle){
+
+}
+
