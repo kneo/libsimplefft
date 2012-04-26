@@ -44,11 +44,11 @@ public class FFTProcessor{
 	public static native int createFastConvolutionContext(int samples, double[] kernel);
 	public static native int createFastConvolutionContext(int samples, short[]  kernel);	
 	
-	private static native void performFastConvolution(int handle, float[]  signal);
-	private static native void performFastConvolution(int handle, double[] signal);
-	private static native void performFastConvolution(int handle, short[]  signal);
+	public static native void performFastConvolution(int handle, float[]  signal);
+	public static native void performFastConvolution(int handle, double[] signal);
+	public static native void performFastConvolution(int handle, short[]  signal);
 	
-	private static native void destroyFastConvolution(int handle);
+	public static native void destroyFastConvolution(int handle);
 
 	public static int initializeFFT(int samples,byte mode, byte type){
 		return FFTProcessor.createFFTContext(samples,mode,type);

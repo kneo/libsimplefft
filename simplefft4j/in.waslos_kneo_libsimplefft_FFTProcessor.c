@@ -140,7 +140,7 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastC
 		init_conv_handles();
 	}
 	
-	if(conv_handles->c_handles<MAX_CONV_HANDLES) return -1;
+	if((conv_handles->c_handles+1) > MAX_CONV_HANDLES) return -1;
 	
 	//retrieve kernel
 	jsize len = (*env)->GetArrayLength(env, kernel);
@@ -167,6 +167,8 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastC
 	conv_handles->storage[i] = context;
 	conv_handles->c_handles++;
 	
+	(*env)->ReleaseFloatArrayElements(env, kernel, fkernel, 0);
+	
 	return i;
 }
 
@@ -179,7 +181,70 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastC
 }
 
 JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFastConvolution__I_3F(JNIEnv* env, jclass object, jint handle, jfloatArray signal){
+
+	if(!conv_handles) return;
 	
+	if(conv_handles->c_handles>0 && conv_handles->storage[handle] != NULL){
+		jsize len = (*env)->GetArrayLength(env,signal);
+		
+		CONVOLUTION_CONTEXT* context = conv_handles->storage[handle];
+		CPLX_SAMPLES csignal;
+		
+		int copy_switch = 0;
+		float* re = (float*) (*env)->GetFloatArrayElements(env, signal, 0);
+		
+		float tre[context->samples];
+		float tim[context->samples];
+		
+		memset(tre,0,sizeof(tre));
+		memset(tim,0,sizeof(tim));
+		
+		if(len == context->samples){			
+			csignal.re = re;
+			csignal.im = &tim;
+		} else {
+			copy_switch=1;
+
+			uint32_t length;
+			if(context->samples > len){
+				length = context->samples;
+			} else {
+				length = len;
+			}
+			
+			int i=0;
+			for(;i<length;i++){
+				tre[i] = re[i];
+				tim[i] = 0;
+			}
+			
+			csignal.re = &tre;
+			csignal.im = &tim;
+		}
+		
+		csignal.length = context->samples;
+		csignal.type   = CPLX_TYPE_SP;
+		
+		lsfft_perform_convolution(context,&csignal);
+		
+		if(copy_switch){
+			uint32_t length;
+			
+			if(context->samples > len){
+				length = context->samples;
+			} else {
+				length = len;
+			}
+			
+			int i=0;
+			
+			for(;i<length;i++){
+				re[i] = ((float*)csignal.re)[i];
+			}
+		}
+		
+		(*env)->ReleaseFloatArrayElements(env, signal,  re, 0);
+	}
 }
 
 JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFastConvolution__I_3D(JNIEnv* env, jclass object, jint handle, jdoubleArray signal){
