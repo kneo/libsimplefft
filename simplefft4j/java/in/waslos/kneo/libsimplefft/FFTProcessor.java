@@ -48,7 +48,7 @@ public class FFTProcessor{
 	public static native void performFastConvolution(int handle, double[] signal);
 	public static native void performFastConvolution(int handle, short[]  signal);
 	
-	public static native void destroyFastConvolution(int handle);
+	public static native int destroyFastConvolution(int handle);
 
 	public static int initializeFFT(int samples,byte mode, byte type){
 		return FFTProcessor.createFFTContext(samples,mode,type);

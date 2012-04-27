@@ -110,7 +110,7 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFast
  * Method:    destroyFastConvolution
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_destroyFastConvolution
+JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_destroyFastConvolution
   (JNIEnv *, jclass, jint);
 
 #ifdef __cplusplus
