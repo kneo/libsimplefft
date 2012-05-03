@@ -20,12 +20,19 @@
 
 #ifndef CONVOLUTION_H
 #define CONVOLUTION_H
-#include"libsimplefft.h"
 
+#include "libsimplefft.h"
+
+/**initialize a fast convolution using kernel.
+*/
 CONVOLUTION_CONTEXT* lsfft_init_convolution(CPLX_SAMPLES* kernel);
 
+/**perform a fast convolution using context and apply it to the signal.
+*/
 void lsfft_perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signal);
 
+/**free allocated context and data.
+*/
 void lsfft_destroy_covolution_context(CONVOLUTION_CONTEXT* context);
 
 #endif

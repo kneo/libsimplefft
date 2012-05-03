@@ -10,7 +10,7 @@ public class FFTProcessor{
 	
 	static{
 		System.loadLibrary("simplefft");
-		System.loadLibrary("simplefft4j");	
+		System.loadLibrary("simplefft4j");
 	}
 
 	private static native int createFFTContext(int samples, byte mode, byte type);
@@ -41,10 +41,7 @@ public class FFTProcessor{
 	}
 	
 	public static void main(String[] argV){
-
-		//System.loadLibrary("simplefft");		
-
-	
+		//System.loadLibrary("simplefft");
 		int size = 8;
 	
 		int handle = FFTProcessor.initializeFFT(size,FFTProcessor.FFT_MODE_NORMAL,FFTProcessor.CPLX_TYPE_INT);

@@ -9,8 +9,9 @@ Table of Contents:
    4.3. Assign Sample Data
    4.4. Perform the FFT
 5. Build on Android
-6. You said its fast how fast is it?
-7. License (LGPL)
+6. Performing convolutions
+7. You said its fast how fast is it?
+8. License (LGPL)
 
 1. Introduction of libsimplefft
 ===============================
@@ -35,6 +36,7 @@ results. So have fun looking through the code or use it for your projects.
 - FFT and iFFT for single, double and integer precision are implemented
 - JNI Access
 - Android Build and usage via JNI
+- Fast Convolution in C
 
 3. What's going to work?
 ===============================
@@ -42,7 +44,7 @@ results. So have fun looking through the code or use it for your projects.
 - cast FFTs into another data precision type
 - I consider a parallized version running several threads,
   but no commitment on that one.
-- JNI needs some clean up work so destroyFFT would work properly.
+- Fast Convolution in Java
 
 4. How to use it
 ===============================
@@ -60,7 +62,7 @@ In order to build use:
 
 and followed if finished by:
 
-	./configure
+	./configure JDK_HOME=/path/to/jdk/root
 
 to install the library to your install prefix.
 You may change it on the ./configure call to your deeds.
@@ -161,7 +163,7 @@ since its an in place FFT.
 Set up your project. Stop at the point where you
 have to create the "jni" folder.
 Instead of creating it symbolic link the root directory 
-of the repository to the "jni" folder using:
+of the repository as the "jni" folder using:
 
 	ln -s /full/path/to/repo/libsimplefft/ /full/path/to/project/in/workspace/jni
 	
@@ -171,10 +173,20 @@ After that you can run:
 
 To let the Android NDK build libraries
 
-Afterwarts add the java directory to your Android applications build path
-so you can use I within java.
+Afterwarts add the "java" directory to your Android applications build path
+so you can use the JNI Interface classes.
 
-6. You said its fast how fast is it?
+6. Performing Convolutions
+========================================
+Since last commitment libsimplefft supports fast convolutions, to provide
+fast filtering. It's in an ealy state and needs some fixes.
+I uses the fft implementation to perform the convolution in the frequency
+domain. This implementation has still several issues like decimal place cropping.
+(Going to be fixed soon). So it's is not very acurate, and produces noise as
+effect of rounding errors.
+
+
+7. You said its fast how fast is it?
 ========================================
 it would be a FFT if it would'nt be fast so here some facts:
 Test machine :
@@ -201,7 +213,7 @@ going to be added here. If I manage to port it to ARM there will be a benchmark 
 	 524288 |    280
 	1048576 |    780
 
-7. License
+8. License
 ========================================
 Copyright (C) 2012  Kevin Krüger (kkevin@gmx.net)
 

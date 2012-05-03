@@ -74,7 +74,7 @@ void lsfft_perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signa
 		//point wise multiplication
 		int i = 0;
 		switch(context->type){
-			case CPLX_TYPE_INT:			
+			case CPLX_TYPE_INT:
 				for(;i<context->samples;i++){
 					int16_t itmp = isre[i];
 					isre[i] = re_mul_i(isre[i],isim[i],ikre[i],ikim[i]);
@@ -98,7 +98,7 @@ void lsfft_perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signa
 				}
 			break;
 		}
-		//perform the ifft of the convoluted signal		
+		//perform the ifft of the convoluted signal
 		lsfft_perform(context->ifft_context,signal);
 	}
 }
