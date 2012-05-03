@@ -145,6 +145,10 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastC
 	//retrieve kernel
 	jsize len = (*env)->GetArrayLength(env, kernel);
 	float* fkernel = (float*) (*env)->GetFloatArrayElements(env, kernel, 0);
+	
+	if(len>samples){
+		len = samples;
+	}
 
 	//create a new kernel buffer for complex processing
 	CPLX_SAMPLES* c_kernel = lsfft_alloc_complex_buffer(samples,CPLX_TYPE_SP);
@@ -188,6 +192,10 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastC
 
 	//pointer to real part of the real part
 	double* re = (double*) c_kernel->re;
+	
+	if(len>samples){
+		len = samples;
+	}
 
 	int i;
 
@@ -225,6 +233,10 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastC
 
 	//pointer to real part of the real part
 	int16_t* re = (int16_t*) c_kernel->re;
+	
+	if(len>samples){
+		len = samples;
+	}
 
 	int i;
 
@@ -247,9 +259,10 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastC
 }
 
 JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFastConvolution__I_3F(JNIEnv* env, jclass object, jint handle, jfloatArray signal){
+	
 	if(!conv_handles) return;
 	
-	if(conv_handles->c_handles>0 && conv_handles->storage[handle] != NULL){
+	if(conv_handles->c_handles > 0 && conv_handles->storage[handle] != NULL){
 		jsize len = (*env)->GetArrayLength(env,signal);
 		float* re = (float*) (*env)->GetFloatArrayElements(env, signal, 0);
 		
@@ -265,25 +278,26 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFast
 		memset(tre,0,sizeof(tre));
 		memset(tim,0,sizeof(tim));
 		
-		if(len == context->samples){			
+		if(len == context->samples){
 			csignal.re = re;
 			csignal.im = &tim;
 		} else {
 			copy_switch=1;
 			uint32_t length;
-			
-			if(context->samples > len){
+			//crop if signal is too long
+			if(context->samples < len){
 				length = context->samples;
 			} else {
 				length = len;
 			}
 			
+			//copy
 			int i=0;
 			for(;i<length;i++){
 				tre[i] = re[i];
 				tim[i] = 0;
 			}
-			
+			//assign
 			csignal.re = &tre;
 			csignal.im = &tim;
 		}
@@ -296,7 +310,7 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFast
 		//copy back the result if necessary
 		if(copy_switch){
 			uint32_t length;
-			if(context->samples > len){
+			if(context->samples < len){
 				length = context->samples;
 			} else {
 				length = len;
@@ -339,7 +353,7 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFast
 			copy_switch=1;
 			uint32_t length;
 			
-			if(context->samples > len){
+			if(context->samples < len){
 				length = context->samples;
 			} else {
 				length = len;
@@ -363,7 +377,7 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFast
 		//copy back the result if necessary
 		if(copy_switch){
 			uint32_t length;
-			if(context->samples > len){
+			if(context->samples < len){
 				length = context->samples;
 			} else {
 				length = len;
@@ -406,7 +420,7 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFast
 			copy_switch=1;
 			uint32_t length;
 			
-			if(context->samples > len){
+			if(context->samples < len){
 				length = context->samples;
 			} else {
 				length = len;
@@ -430,7 +444,7 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFast
 		//copy back the result if necessary
 		if(copy_switch){
 			uint32_t length;
-			if(context->samples > len){
+			if(context->samples < len){
 				length = context->samples;
 			} else {
 				length = len;

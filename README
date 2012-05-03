@@ -60,7 +60,7 @@ In order to build use:
 
 and followed if finished by:
 
-	./configure
+	./configure JDK_HOME=/path/to/jdk/root
 
 to install the library to your install prefix.
 You may change it on the ./configure call to your deeds.
