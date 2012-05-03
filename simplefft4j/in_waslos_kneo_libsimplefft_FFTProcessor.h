@@ -56,6 +56,62 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTd
  */
 JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTi
   (JNIEnv *, jobject, jint, jshortArray, jshortArray);
+  
+/*
+ * Class:     in_waslos_kneo_libsimplefft_FFTProcessor
+ * Method:    createFastConvolutionContext
+ * Signature: (I[F)I
+ */
+JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastConvolutionContext__I_3F
+  (JNIEnv *, jclass, jint, jfloatArray);
+
+/*
+ * Class:     in_waslos_kneo_libsimplefft_FFTProcessor
+ * Method:    createFastConvolutionContext
+ * Signature: (I[D)I
+ */
+JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastConvolutionContext__I_3D
+  (JNIEnv *, jclass, jint, jdoubleArray);
+
+/*
+ * Class:     in_waslos_kneo_libsimplefft_FFTProcessor
+ * Method:    createFastConvolutionContext
+ * Signature: (I[S)I
+ */
+JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastConvolutionContext__I_3S
+  (JNIEnv *, jclass, jint, jshortArray);
+
+/*
+ * Class:     in_waslos_kneo_libsimplefft_FFTProcessor
+ * Method:    performFastConvolution
+ * Signature: (I[F)V
+ */
+JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFastConvolution__I_3F
+  (JNIEnv *, jclass, jint, jfloatArray);
+
+/*
+ * Class:     in_waslos_kneo_libsimplefft_FFTProcessor
+ * Method:    performFastConvolution
+ * Signature: (I[D)V
+ */
+JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFastConvolution__I_3D
+  (JNIEnv *, jclass, jint, jdoubleArray);
+
+/*
+ * Class:     in_waslos_kneo_libsimplefft_FFTProcessor
+ * Method:    performFastConvolution
+ * Signature: (I[S)V
+ */
+JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFastConvolution__I_3S
+  (JNIEnv *, jclass, jint, jshortArray);
+  
+/*
+ * Class:     in_waslos_kneo_libsimplefft_FFTProcessor
+ * Method:    destroyFastConvolution
+ * Signature: (I)V
+ */
+JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_destroyFastConvolution
+  (JNIEnv *, jclass, jint);
 
 #ifdef __cplusplus
 }
