@@ -36,7 +36,7 @@ results. So have fun looking through the code or use it for your projects.
 - FFT and iFFT for single, double and integer precision are implemented
 - JNI Access
 - Android Build and usage via JNI
-- Fast Convolution in C
+- Fast Convolution in C and Java using JNI
 
 3. What's going to work?
 ===============================
@@ -44,7 +44,7 @@ results. So have fun looking through the code or use it for your projects.
 - cast FFTs into another data precision type
 - I consider a parallized version running several threads,
   but no commitment on that one.
-- Fast Convolution in Java
+- multiple dimensions FFTs
 
 4. How to use it
 ===============================
@@ -65,17 +65,9 @@ and followed if finished by:
 	./configure JDK_HOME=/path/to/jdk/root
 
 to install the library to your install prefix.
-You may change it on the ./configure call to your deeds.
-
-	Consider:
-	./configure --help
-	for more information.
-
-to generate required make files. You can still use
-the old makefile by renaming "makefile.bak" into
-"makefile". But I recommend using the auto build
-way of building the library.
-Then run:
+You may change it on the "configure" call to your deeds.
+It will generate all makefiles according to your systems
+configuration. Once this is done successfully run:
 
 	make
 
@@ -97,7 +89,7 @@ The function lsfft_init does that for you, it returns a pointer to a valid
 FFT_CONTEXT you need to specify several parameters in order to get
 this thing to work:
 
-	1.) enter the samples the FFT is going to be processed.
+	1.) Enter the samples the FFT is going to be processed.
 		Remind that a power of 2 size is required!
 
 	2.) Specify the mode of the FFT, there are for choise:
@@ -115,7 +107,7 @@ this thing to work:
 
 Now the FFT is fully initialized.
 
-To perform it on some data you need to allocate a CPLX_SAMPLES structure,
+To perform it on some data you'll need to allocate a CPLX_SAMPLES structure,
 better a pointer to its location.
 
 Easiest way to do so is using the lsfft_alloc_complex_buffer function.
@@ -123,22 +115,22 @@ Remind that you have to specify the datatype as well.
 
 Here you have to specify two parameters to get a valid structure:
 
-	1.) the sample size which needs to be of the same size as you specified
+	1.) The sample size which needs to be of the same size as you specified
 		at the FFT initialization.
 
-	2.) the data type of the sample going to be processed.
-		This is also has to be the same as at the FFT initialization
+	2.) The data type of the samples going to be processed.
+		This is also has to be the same as at in the FFT initialization
 
 The function lsfft_alloc_complex_buffer returns the a pointer to the allocated
 structure.
 
 4.3. Assign Sample Data
 -------------------------------
-now you are ready to go. To assign your data you can cast the re and im field
+Now you are ready to go. To assign your data you can cast the re and im field
 of the CPLX_SAMPLES structure to a fiting pointer to $TYPE pointer.
 
 For example if you're using single precision FFT you need to cast it to a
-float pointer:
+float pointer (double if double precision and int16_t on integer precision):
 
 	CPLX_SAMPLES* samples;
 
@@ -155,17 +147,17 @@ allocations, and so of the datatypes!
 --------------------------------
 The last step is to call the lsfft_perform function assigning your FFT_CONTEXT
 and your CPLX_SAMPLES pointers, to let the FFT do its work. After returning
-the result is stored within the same buffer you assigned to call lsfft_perform
+the result is stored within the CPLX_SAMPLES structure you assigned to call lsfft_perform
 since its an in place FFT.
 
 5. Build on Android
 ========================================
 Set up your project. Stop at the point where you
 have to create the "jni" folder.
-Instead of creating it symbolic link the root directory 
-of the repository as the "jni" folder using:
+Instead of creating it, symbolic link the root directory 
+of the libsimplefft repository to the "jni" folder using:
 
-	ln -s /full/path/to/repo/libsimplefft/ /full/path/to/project/in/workspace/jni
+	ln -s /full/path/to/repo/of/libsimplefft/ /full/path/to/project/in/workspace/jni
 	
 After that you can run:
 
@@ -179,12 +171,32 @@ so you can use the JNI Interface classes.
 6. Performing Convolutions
 ========================================
 Since last commitment libsimplefft supports fast convolutions, to provide
-fast filtering. It's in an ealy state and needs some fixes.
+fast filtering. It's in an early state and needs some fixes.
 I uses the fft implementation to perform the convolution in the frequency
-domain. This implementation has still several issues like decimal place cropping.
-(Going to be fixed soon). So it's is not very acurate, and produces noise as
-effect of rounding errors.
+domain (see: convolution theorem).
+This implementation has still several issues like decimal place cropping.
+So it's is not very accurate yet, and produces noise as
+effect of rounding errors (Going to be fixed soon).
 
+To perform a fast convolution create a fast convolution context using the
+lsfft_init_convolution function. It requires a single parameter which contains
+the real domain convolution kernel and the size of the supporting FFTs.
+This CPLX_SAMPLES structure is created using the lsfft_alloc_complex_buffer
+function specifying the samples count going to be processed. It makes sure
+that this size is a power of two so its recommended to use it.
+
+After that you assign you kernel values to the storage assigned 
+to the CPLX_SAMPLES->re pointer.
+
+If you call the lsfft_init_convolution function it will create the
+necessary FFTs for you and process the kernel, in transforming it
+into the frequency domain.
+
+A valid pointer to a CONVOLUTION_CONTEXT is returned containing all required 
+data. To perform a fast convolution assign the CONVOLUTION_CONTEXT
+and the signal of the same size of the kernel CPLX_SAMPLES structure.
+Now call lsfft_perform_convolution.
+The result is stored in the same structure as signal.
 
 7. You said its fast how fast is it?
 ========================================
