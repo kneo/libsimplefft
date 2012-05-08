@@ -1,11 +1,11 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(libsimplefft, 0.5.0, kkevin@gmx.net)
+AC_INIT(libsimplefft, 0.7.0, kkevin@gmx.net)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR(m4)
 AC_CONFIG_SRCDIR(libsimplefft/libsimplefft.h)
 AC_CONFIG_SRCDIR(simplefft4j/f4jdefines.h)
 LIB_CURRENT=0
-LIB_REVISION=5
+LIB_REVISION=7
 LIB_AGE=0
 
 AC_SUBST(LIB_CURRENT)
