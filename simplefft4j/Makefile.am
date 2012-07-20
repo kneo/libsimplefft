@@ -6,4 +6,3 @@ libsimplefft4j_la_SOURCES = f4jdefines.h in.waslos_kneo_libsimplefft_FFTProcesso
 libsimplefft4j_la_CPPFLAGS = -I$(top_srcdir)/libsimplefft -I$(JDK_HOME)include
 
 libsimplefft4j_la_LDFLAGS = -lm --shared -fPIC
-

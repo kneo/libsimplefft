@@ -1,3 +1,8 @@
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = libsimplefft simplefft4j
-EXTRA_DIST = autogen.sh
+
+if JNI_OPT
+	SIMPLE_FFT_J=simplefft4j;
+endif
+
+SUBDIRS = libsimplefft
+EXTRA_DIST = autogen.sh $(SIMPLE_FFT_J)
