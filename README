@@ -8,6 +8,7 @@ Table of Contents:
    4.2. Initializing
    4.3. Assign Sample Data
    4.4. Perform the FFT
+   4.5. Examples
 5. Build on Android
 6. Performing convolutions
 7. You said its fast how fast is it?
@@ -62,10 +63,16 @@ In order to build use:
 
 and followed if finished by:
 
-	./configure JDK_HOME=/path/to/jdk/root
+	./configure
 
 to install the library to your install prefix.
 You may change it on the "configure" call to your deeds.
+
+For example if you want to use the java native interface,
+provided by this library you'll need to run (this is optional):
+
+	./configure --enable-jni JDK_HOME=/path/to/jdk/root
+
 It will generate all makefiles according to your systems
 configuration. Once this is done successfully run:
 
@@ -149,6 +156,10 @@ The last step is to call the lsfft_perform function assigning your FFT_CONTEXT
 and your CPLX_SAMPLES pointers, to let the FFT do its work. After returning
 the result is stored within the CPLX_SAMPLES structure you assigned to call lsfft_perform
 since its an in place FFT.
+
+4.5. Examples
+--------------------------------
+There are examples on how to use libsimplefft in C just checkout the 
 
 5. Build on Android
 ========================================

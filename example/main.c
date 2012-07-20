@@ -11,7 +11,7 @@ int main(void){
 	
 	//--FFT AND iFFT
 	int i=4;
-	for(;i<12;i++){ //store a sqare wave pulse
+	for(;i<12;i++){ //store a square wave pulse
 		((double*)samples->re)[i] = 1;
 	}
 	
@@ -34,8 +34,8 @@ int main(void){
 	//--filtering using fast convolution
 	CPLX_SAMPLES* kernel = lsfft_alloc_complex_buffer(16,CPLX_TYPE_DP); //get the buffer for the convolution kernel
 
-	((double*)kernel->re)[0] = -1; // perform an "edge detection
-	((double*)kernel->re)[1] = -0;
+	((double*)kernel->re)[0] = -1; // perform an "edge" detection using 1D Sobel-Filter
+	((double*)kernel->re)[1] =  0;
 	((double*)kernel->re)[2] =  1;
 	
 	CONVOLUTION_CONTEXT* conv_context = lsfft_init_convolution(kernel);
