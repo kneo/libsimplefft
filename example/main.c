@@ -11,7 +11,7 @@ int main(void){
 	
 	//--FFT AND iFFT
 	int i=4;
-	for(;i<12;i++){ //store a saw tooth wave
+	for(;i<12;i++){ //store a sqare wave pulse
 		((double*)samples->re)[i] = 1;
 	}
 	
