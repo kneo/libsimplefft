@@ -48,6 +48,51 @@ CONVOLUTION_CONTEXT* lsfft_init_convolution(CPLX_SAMPLES* kernel){
 	return NULL;
 }
 
+//function for reusing fft contexts
+CONVOLUTION_CONTEXT* lsfft_init_convolution_using_fft_context(FFT_CONTEXT* fft, FFT_CONTEXT* ifft, CPLX_SAMPLES* kernel){
+	if(kernel){
+		FFT_CONTEXT* context;
+		FFT_CONTEXT* icontext;
+		
+		if(!fft){
+			context  = lsfft_init(kernel->length,kernel->type,FFT_MODE_NORMAL);
+		}
+		else{
+			context  = fft;
+		}
+		
+		if(!ifft){
+			icontext = lsfft_init(kernel->length,kernel->type,FFT_MODE_INVERSE);
+		}
+		else{
+			icontext = ifft;
+		}
+		
+		
+		if(!context || !icontext){
+			return NULL;
+		}
+		
+		//calculate fft of kernel in place
+		lsfft_perform(context,kernel);
+	
+		CONVOLUTION_CONTEXT* res = (CONVOLUTION_CONTEXT*) calloc(1,sizeof(CONVOLUTION_CONTEXT));
+
+		res->type          = kernel->type;
+		res->fft_context   = context;
+		res->ifft_context  = icontext;
+		res->samples       = kernel->length;
+		res->kernel        = kernel;
+	
+		//return context		
+		return res;
+	}
+
+	return NULL;
+}
+
+
+
 void lsfft_perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signal){
 	if(context && signal){
 		//compute the fft of the signal
