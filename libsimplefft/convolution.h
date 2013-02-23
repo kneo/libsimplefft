@@ -27,6 +27,11 @@
 */
 CONVOLUTION_CONTEXT* lsfft_init_convolution(CPLX_SAMPLES* kernel);
 
+/**Create a fact convolution using kernel and pre initialized fft contexts
+ * They will be created if not existing.
+ */
+CONVOLUTION_CONTEXT* lsfft_init_convolution_using_fft_context(FFT_CONTEXT* fft, FFT_CONTEXT* ifft, CPLX_SAMPLES* kernel);
+
 /**perform a fast convolution using context and apply it to the signal.
 */
 void lsfft_perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signal);
