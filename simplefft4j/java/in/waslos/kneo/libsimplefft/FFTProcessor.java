@@ -105,7 +105,7 @@ public class FFTProcessor{
 		}
 		
 		
-		performFastConvolution(re);
+		performFastConvolution(conhandle,re);
 		
 		for(int i = 0;i<size;i++){
 			System.out.printf("%d + %d * i\n",re[i],im[i]);

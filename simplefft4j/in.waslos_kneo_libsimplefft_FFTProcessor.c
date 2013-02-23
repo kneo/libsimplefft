@@ -43,16 +43,16 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFFTCo
 			if(fft_handles->storage[i]==NULL)
 				break;
 		//no more space for ffts
-		if(i<MAX_FFT_HANDLES) return -1;
+		if(i<MAX_FFT_HANDLES){
+			FFT_CONTEXT* context = lsfft_init(samples,type,mode);
 
-		FFT_CONTEXT* context = lsfft_init(samples,type,mode);
+			if(!context) return -1;
 
-		if(!context) return -1;
+			fft_handles->storage[i] = context;
+			fft_handles->c_handles++;
 
-		fft_handles->storage[i] = context;
-		fft_handles->c_handles++;
-		
-		return i;
+			return i;
+		}
 	}
 	
 	return -1;
