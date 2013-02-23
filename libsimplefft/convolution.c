@@ -51,21 +51,15 @@ CONVOLUTION_CONTEXT* lsfft_init_convolution(CPLX_SAMPLES* kernel){
 //function for reusing fft contexts
 CONVOLUTION_CONTEXT* lsfft_init_convolution_using_fft_context(FFT_CONTEXT* fft, FFT_CONTEXT* ifft, CPLX_SAMPLES* kernel){
 	if(kernel){
-		FFT_CONTEXT* context;
-		FFT_CONTEXT* icontext;
+		FFT_CONTEXT* context  = fft;
+		FFT_CONTEXT* icontext = ifft;
 		
 		if(!fft){
 			context  = lsfft_init(kernel->length,kernel->type,FFT_MODE_NORMAL);
 		}
-		else{
-			context  = fft;
-		}
 		
 		if(!ifft){
 			icontext = lsfft_init(kernel->length,kernel->type,FFT_MODE_INVERSE);
-		}
-		else{
-			icontext = ifft;
 		}
 		
 		
