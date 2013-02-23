@@ -25,7 +25,7 @@
 static FFT_HANDLES* fft_handles;
 static CONVOLUTION_HANDLES* conv_handles;
 
-FFT_CONTEXT* look_up_compatible_fft_context(int size, int type,int mode);
+int32_t look_up_compatible_fft_context(int size, int type,int mode);
 
 
 void init_fft_handles(){
