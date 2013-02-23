@@ -153,13 +153,13 @@ int32_t look_up_compatible_fft_context(int size, int type,int mode){
 			
 			if(context){
 				if(context->type==type && context->mode==mode && context->samples==size){
-					printf("found reusable fft!\n");
+					//printf("found reusable fft!\n");
 					return i;
 				}
 			}
 		}
 		
-		printf("did not found reusable fft!\n");	
+		//printf("did not found reusable fft!\n");	
 	}
 	return -1;
 	
@@ -177,13 +177,13 @@ FFT_CONTEXT* look_up_or_create_compatible_fft_context(int size, int type,int mod
 			
 			if(context){
 				if(context->type==type && context->mode==mode && context->samples==size){
-					printf("found reusable fft!\n");
+					//printf("found reusable fft!\n");
 					return context;
 				}
 			}
 		}
 		
-		printf("did not found reusable fft! creating ...\n");
+		//printf("did not found reusable fft! creating ...\n");
 		
 		if(fft_handles->c_handles<MAX_FFT_HANDLES){
 			for(i=0;i<MAX_FFT_HANDLES;i++) //find a free pointer
