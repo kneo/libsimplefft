@@ -142,11 +142,11 @@ FFT_CONTEXT* look_up_or_create_compatible_fft_context(int size, int type,int mod
 		uint32_t i = 0;
 		FFT_CONTEXT* context;
 		
-		for(i=0;i<FFT_HANDLES;i++){
+		for(i=0;i<MAX_FFT_HANDLES;i++){
 			context = fft_handles->storage[i];
 			
 			if(context){
-				if(context->type==type && context->mode==mode && context->size==size)
+				if(context->type==type && context->mode==mode && context->samples==size)
 					return context;
 			}
 		}
