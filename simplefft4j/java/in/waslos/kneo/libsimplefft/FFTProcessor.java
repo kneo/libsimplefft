@@ -76,11 +76,11 @@ public class FFTProcessor{
 		int size = 8;
 	
 		int handle = FFTProcessor.initializeFFT(size,FFTProcessor.FFT_MODE_NORMAL,FFTProcessor.CPLX_TYPE_INT);
-		int ihandle = FFTProcessor.initializeFFT(size,FFTProcessor.FFT_MODE_INVERSE,FFTProcessor.CPLX_TYPE_INT);
+		//int ihandle = FFTProcessor.initializeFFT(size,FFTProcessor.FFT_MODE_INVERSE,FFTProcessor.CPLX_TYPE_INT);
 		
 		
 		
-		System.out.println("handle retrieved : "+handle+" inverse "+ihandle);
+		System.out.println("handle retrieved : "+handle/*/+" inverse "+ihandle*/);
 
 		short[] re = new short[size];
 		short[] im = new short[size];

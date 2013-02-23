@@ -25,6 +25,9 @@
 static FFT_HANDLES* fft_handles;
 static CONVOLUTION_HANDLES* conv_handles;
 
+FFT_CONTEXT* look_up_compatible_fft_context(int size, int type,int mode);
+
+
 void init_fft_handles(){
 	fft_handles = (FFT_HANDLES*)calloc(1,sizeof(FFT_HANDLES));
 }
@@ -36,24 +39,28 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFFTCo
 		init_fft_handles();
 	}
 	
-	if(fft_handles->c_handles<MAX_FFT_HANDLES){
-		uint32_t i = 0;
+	int32_t handle = look_up_compatible_fft_context(samples,type,mode);
+	
+	if(handle<0){
+		if(fft_handles->c_handles<MAX_FFT_HANDLES){
+			uint32_t i = 0;
 
-		for(;i<MAX_FFT_HANDLES;i++) //find a free pointer
-			if(fft_handles->storage[i]==NULL)
-				break;
-		//no more space for ffts
-		if(i<MAX_FFT_HANDLES){
-			FFT_CONTEXT* context = lsfft_init(samples,type,mode);
+			for(;i<MAX_FFT_HANDLES;i++) //find a free pointer
+				if(fft_handles->storage[i]==NULL)
+					break;
+			//no more space for ffts
+			if(i<MAX_FFT_HANDLES){
+				FFT_CONTEXT* context = lsfft_init(samples,type,mode);
 
-			if(!context) return -1;
+				if(!context) return -1;
 
-			fft_handles->storage[i] = context;
-			fft_handles->c_handles++;
+				fft_handles->storage[i] = context;
+				fft_handles->c_handles++;
 
-			return i;
+				return i;
+			}
 		}
-	}
+	} else return handle;
 	
 	return -1;
 }
@@ -135,6 +142,29 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTi
 	}
 }
 
+int32_t look_up_compatible_fft_context(int size, int type,int mode){
+	
+	if(fft_handles){
+		uint32_t i = 0;
+		FFT_CONTEXT* context;
+		
+		for(i=0;i<MAX_FFT_HANDLES;i++){
+			context = fft_handles->storage[i];
+			
+			if(context){
+				if(context->type==type && context->mode==mode && context->samples==size){
+					printf("found reusable fft!\n");
+					return i;
+				}
+			}
+		}
+		
+		printf("did not found reusable fft!\n");	
+	}
+	return NULL;
+	
+}
+
 
 FFT_CONTEXT* look_up_or_create_compatible_fft_context(int size, int type,int mode){
 	
@@ -152,6 +182,8 @@ FFT_CONTEXT* look_up_or_create_compatible_fft_context(int size, int type,int mod
 				}
 			}
 		}
+		
+		printf("did not found reusable fft! creating ...\n");
 		
 		if(fft_handles->c_handles<MAX_FFT_HANDLES){
 			for(i=0;i<MAX_FFT_HANDLES;i++) //find a free pointer
