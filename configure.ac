@@ -16,9 +16,12 @@ AC_CHECK_LIB(m, sin)
 AC_CHECK_LIB(m, cos)
 
 AC_ARG_VAR([JDK_HOME], [Java Development Kit (JDK) location])
+
 AC_ARG_ENABLE([jni],[AC_HELP_STRING([--enable-jni],[enable Java Native Interface for libsimplefft])])
-AS_IF([test X$enable_jni = Xyes],[AS_IF([test -z "$JDK_HOME"],[AC_MSG_FAILURE([JDK_HOME has not been set. JDK_HOME must be set at run time to locate libjvm.])])])
-AM_CONDITIONAL([JNI_OPT], [test X$enable_jni = yes])
+
+AS_IF([test "$enable_jni" = "yes"],[AS_IF([test -z "$JDK_HOME"],[AC_MSG_FAILURE([JDK_HOME has not been set. JDK_HOME must be set at run time to locate libjvm.])])])
+
+AM_CONDITIONAL([JNI_OPT], [test "$enable_jni" = "yes"])
 
 AM_INIT_AUTOMAKE
 AC_PROG_CC
