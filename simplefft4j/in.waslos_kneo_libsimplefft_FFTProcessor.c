@@ -41,7 +41,7 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFFTCo
 	
 	int32_t handle = look_up_compatible_fft_context(samples,type,mode);
 	
-	if(handle<0){
+	if(handle<=0){
 		if(fft_handles->c_handles<MAX_FFT_HANDLES){
 			uint32_t i = 0;
 
@@ -134,7 +134,7 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTi
 		
 		samples.re = (short*)fre;
 		samples.im = (short*)fim;
-				
+
 		lsfft_perform(context,&samples);
 		
 		(*env)->ReleaseShortArrayElements(env, re, fre, 0);
@@ -161,7 +161,7 @@ int32_t look_up_compatible_fft_context(int size, int type,int mode){
 		
 		printf("did not found reusable fft!\n");	
 	}
-	return NULL;
+	return -1;
 	
 }
 
