@@ -40,13 +40,21 @@ public class FFTProcessor{
 	private static native void performFFTd(int handle, double[] re, double[] im);
 	private static native void performFFTi(int handle, short[]  re, short[]  im);
 	
-	public static native int createFastConvolutionContext(int samples, float[]  kernel);
-	public static native int createFastConvolutionContext(int samples, double[] kernel);
-	public static native int createFastConvolutionContext(int samples, short[]  kernel);	
+	public static native int findFFTHandle(int type,int size,int mode);
 	
-	public static native void performFastConvolution(int handle, float[]  signal);
-	public static native void performFastConvolution(int handle, double[] signal);
-	public static native void performFastConvolution(int handle, short[]  signal);
+	public static native int createFastConvolutionContext(int samples, float[] kernel_re,float[] kernel_im);
+	public static native int createFastConvolutionContext(int samples, double[] kernel_re,double[] kernel_im);
+	public static native int createFastConvolutionContext(int samples, short[] kernel_re,short[] kernel_im);
+	
+	public static native int getConvolutionSize(int handle);
+	
+	public static native int getTransformedConvolutionKernel(int handle, short[] kernel_re,short[] kernel_im);
+	public static native int getTransformedConvolutionKernel(int handle, float[] kernel_re,float[] kernel_im);
+	public static native int getTransformedConvolutionKernel(int handle, double[] kernel_re,double[] kernel_im);
+	
+	public static native void performFastConvolution(int handle, float[]  signal_re,float[]  signal_im);
+	public static native void performFastConvolution(int handle, double[] signal_re,double[] signal_im);
+	public static native void performFastConvolution(int handle, short[]  signal_re, short[] signal_im);
 	
 	public static native int destroyFastConvolution(int handle);
 
@@ -77,9 +85,6 @@ public class FFTProcessor{
 	
 		int handle = FFTProcessor.initializeFFT(size,FFTProcessor.FFT_MODE_NORMAL,FFTProcessor.CPLX_TYPE_INT);
 		//int ihandle = FFTProcessor.initializeFFT(size,FFTProcessor.FFT_MODE_INVERSE,FFTProcessor.CPLX_TYPE_INT);
-		
-		
-		
 		System.out.println("handle retrieved : "+handle/*/+" inverse "+ihandle*/);
 
 		short[] re = new short[size];
@@ -89,13 +94,13 @@ public class FFTProcessor{
 			re[i] = (short)i;
 		}
 		
-		short[] kernel = {-1,0,1};
+		short[] kernel_re = {-1,0,1};
+		short[] kernel_im = {0, 0,0};
 		
-		int conhandle = FFTProcessor.createFastConvolutionContext(8,kernel);
+		int conhandle = FFTProcessor.createFastConvolutionContext(8,kernel_re,kernel_im);
 		
 		long time = System.currentTimeMillis();
 		performFFT(handle,re,im);
-		
 		
 		time = System.currentTimeMillis() - time;
 		System.out.println("runtime : "+time+"ms");
@@ -105,7 +110,7 @@ public class FFTProcessor{
 		}
 		
 		
-		performFastConvolution(conhandle,re);
+		performFastConvolution(conhandle,re,im);
 		
 		for(int i = 0;i<size;i++){
 			System.out.printf("%d + %d * i\n",re[i],im[i]);

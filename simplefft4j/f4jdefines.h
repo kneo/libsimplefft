@@ -26,6 +26,9 @@
 #include<stdint.h>
 #include<stdlib.h>
 #include<stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include"../libsimplefft/defines.h"
 
 typedef struct FFT_HANDLES{
