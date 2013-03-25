@@ -89,7 +89,8 @@ public class FFTProcessor{
 			re[i] = (short)i;
 		}
 		
-		short[] kernel = {-1,0,1};
+		//laplace filter
+		short[] kernel = {1,-2,1};
 		
 		int conhandle = FFTProcessor.createFastConvolutionContext(8,kernel);
 		
