@@ -14,6 +14,7 @@ AC_SUBST(LIB_AGE)
 
 AC_CHECK_LIB(m, sin)
 AC_CHECK_LIB(m, cos)
+AC_CHECK_LIB(m, roundf)
 
 AC_ARG_VAR([JDK_HOME], [Java Development Kit (JDK) location])
 

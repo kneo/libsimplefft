@@ -26,7 +26,12 @@
 #include<stdint.h>
 #include<stdlib.h>
 #include<stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include"../libsimplefft/defines.h"
+
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void* reserved);
 
 typedef struct FFT_HANDLES{
 	uint32_t c_handles;

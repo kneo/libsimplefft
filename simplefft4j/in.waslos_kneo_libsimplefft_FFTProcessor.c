@@ -17,10 +17,16 @@
 * License along with libsimplefft; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#include "f4jdefines.h"
+
 
 #include "../libsimplefft/libsimplefft.h"
 #include "in_waslos_kneo_libsimplefft_FFTProcessor.h"
+#include "f4jdefines.h"
+
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void* reserved){
+	fprintf(stderr,"JNI_OnLoad called! JNI_Version %d\n",JNI_VERSION_1_6);
+	return JNI_VERSION_1_6;
+}
 
 static FFT_HANDLES* fft_handles;
 static CONVOLUTION_HANDLES* conv_handles;
@@ -33,26 +39,31 @@ void init_fft_handles(){
 }
 
 JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFFTContext(JNIEnv * env, jobject class, jint samples, jbyte mode, jbyte type){
-	//printf("initializing fft...\n");
+	//fprintf(stderr,"initializing fft...\n");
 	if(!fft_handles){
-		//printf("first initialization allocating fft context\n");
+		//fprintf(stderr,"first initialization allocating fft context\n");
 		init_fft_handles();
 	}
 	
 	int32_t handle = look_up_compatible_fft_context(samples,type,mode);
 	
-	if(handle<=0){
+	if(handle<0){
+		//fprintf(stderr,"no compatible context found\n");
 		if(fft_handles->c_handles<MAX_FFT_HANDLES){
 			uint32_t i = 0;
 
 			for(;i<MAX_FFT_HANDLES;i++) //find a free pointer
 				if(fft_handles->storage[i]==NULL)
 					break;
+			//fprintf(stderr,"free handle : %d\n",i);
 			//no more space for ffts
 			if(i<MAX_FFT_HANDLES){
 				FFT_CONTEXT* context = lsfft_init(samples,type,mode);
-
-				if(!context) return -1;
+				
+				if(!context){
+					fprintf(stderr,"no fft context created!\n");
+					return -1;
+				}
 
 				fft_handles->storage[i] = context;
 				fft_handles->c_handles++;
@@ -67,6 +78,23 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFFTCo
 
 JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_destroyFFTContext(JNIEnv * env, jobject class, jint handle){
 	if(fft_handles->c_handles>handle && fft_handles->storage[handle] != NULL){
+		
+		if(conv_handles){ //look for cross references of the same fft context
+			int32_t i = 0;
+			for( ;i<conv_handles->c_handles;i++){
+				CONVOLUTION_CONTEXT* context = conv_handles->storage[i];
+				FFT_CONTEXT* fft_context = fft_handles->storage[handle];
+				
+				if(context && (fft_context == context->ifft_context || fft_context==context->fft_context)){
+					//fft contexts in use so it is unsafe to remove a return
+					//is performed and a warning is displayed
+					fprintf(stderr,"Warning: FFT Context %d is still used by Convolution context %d! \n Please destroy this convolution before destroying the fft.",handle,i);
+					//do nothing and return 
+					return;
+				}
+			}
+		}
+		
 		lsfft_destroy_context(fft_handles->storage[handle]);
 		fft_handles->storage[handle]=NULL;
 		fft_handles->c_handles--;
@@ -75,7 +103,7 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_destroyFFTC
 
 JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTf(JNIEnv * env, jobject class, jint handle, jfloatArray re, jfloatArray im){
 	//printf("performing FFT...");
-	if(fft_handles->c_handles > handle && fft_handles->storage[handle] != NULL){
+	if(fft_handles && fft_handles->c_handles > handle && fft_handles->storage[handle] != NULL){
 		//printf("all set!\n");
 		jfloat* fre = (*env)->GetFloatArrayElements(env, re, 0);
 		jfloat* fim = (*env)->GetFloatArrayElements(env, im, 0);
@@ -98,9 +126,11 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTf
 }
 
 JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTd(JNIEnv * env, jobject class, jint handle, jdoubleArray re, jdoubleArray im){
-	if(fft_handles->c_handles > handle && fft_handles->storage[handle] != NULL){
+	if(fft_handles && fft_handles->c_handles > handle && fft_handles->storage[handle] != NULL){
 		jdouble* fre = (*env)->GetDoubleArrayElements(env, re, 0);
 		jdouble* fim = (*env)->GetDoubleArrayElements(env, im, 0);
+		
+		//fprintf(stderr,"handle -> %d",handle);
 		
 		FFT_CONTEXT* context = fft_handles->storage[handle];
 		
@@ -119,26 +149,42 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTd
 	}
 }
 
-JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTi(JNIEnv * env, jobject class , jint handle, jshortArray re, jshortArray im){
-	if(fft_handles->c_handles > handle && fft_handles->storage[handle] != NULL){
-	
-		jshort* fre = (*env)->GetShortArrayElements(env, re, 0);
-		jshort* fim = (*env)->GetShortArrayElements(env, im, 0);
+JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFFTi(JNIEnv * env, jobject class , jint handle, jshortArray sig_re, jshortArray sig_im){
+	if(fft_handles && fft_handles->c_handles > handle && fft_handles->storage[handle] != NULL){
 		
 		FFT_CONTEXT* context = fft_handles->storage[handle];
-
+		
 		CPLX_SAMPLES samples;
 		
-		samples.type=context->type;
-		samples.length=context->samples;
+		samples.type   = context->type;
+		samples.length = context->samples;
 		
-		samples.re = (short*)fre;
-		samples.im = (short*)fim;
+		jshort* re = (*env)->GetShortArrayElements(env, sig_re, 0);
+		jshort* im = (*env)->GetShortArrayElements(env, sig_im, 0);
+		samples.re = (int16_t*) re;
+		samples.im = (int16_t*) im;
 
-		lsfft_perform(context,&samples);
+		if(!context) {
+			fprintf(stderr,"null pointer context assigned!\n");
+			return;
+		}
+		int i= 0;
+		/*for(;i<samples.length;i++){
+			fprintf(stderr,"%d + i * %d\n",((int16_t*)samples.re)[i],((int16_t*)samples.im)[i]);
+		}*/
 		
-		(*env)->ReleaseShortArrayElements(env, re, fre, 0);
-		(*env)->ReleaseShortArrayElements(env, im, fim, 0);
+		//fprintf(stderr,"executing fft!\n");
+		lsfft_perform(context,&samples);
+		//fprintf(stderr,"done!\n");
+		//fprintf(stderr,"dereferencing re!\n");
+		(*env)->ReleaseShortArrayElements(env, sig_re, re, 0);
+		//fprintf(stderr,"done!\n");
+		
+		//fprintf(stderr,"dereferencing im!\n");
+		(*env)->ReleaseShortArrayElements(env, sig_im, im, 0);
+		//fprintf(stderr,"done!\n");
+	} else {
+		fprintf(stderr,"error no valid context found!");
 	}
 }
 
@@ -168,37 +214,38 @@ int32_t look_up_compatible_fft_context(int size, int type,int mode){
 
 FFT_CONTEXT* look_up_or_create_compatible_fft_context(int size, int type,int mode){
 	
-	if(fft_handles){
-		uint32_t i = 0;
-		FFT_CONTEXT* context;
+	if(!fft_handles) init_fft_handles();
+
+	uint32_t i = 0;
+	FFT_CONTEXT* context;
+	
+	for(i=0;i<MAX_FFT_HANDLES;i++){
+		context = fft_handles->storage[i];
 		
-		for(i=0;i<MAX_FFT_HANDLES;i++){
-			context = fft_handles->storage[i];
-			
-			if(context){
-				if(context->type==type && context->mode==mode && context->samples==size){
-					//printf("found reusable fft!\n");
-					return context;
-				}
+		if(context){
+			if(context->type==type && context->mode==mode && context->samples==size){
+				//printf("found reusable fft!\n");
+				return context;
 			}
-		}
-		
-		//printf("did not found reusable fft! creating ...\n");
-		
-		if(fft_handles->c_handles<MAX_FFT_HANDLES){
-			for(i=0;i<MAX_FFT_HANDLES;i++) //find a free pointer
-				if(fft_handles->storage[i]==NULL)
-					break;
-				
-			FFT_CONTEXT* context = lsfft_init(size,type,mode);
-			
-			if(context){
-				fft_handles->storage[i]=context;
-				fft_handles->c_handles++;
-			}
-			return context;
 		}
 	}
+	
+	//printf("did not found reusable fft! creating ...\n");
+	
+	if(fft_handles->c_handles<MAX_FFT_HANDLES){
+		for(i=0;i<MAX_FFT_HANDLES;i++) //find a free pointer
+			if(fft_handles->storage[i]==NULL)
+				break;
+			
+		FFT_CONTEXT* context = lsfft_init(size,type,mode);
+		
+		if(context){
+			fft_handles->storage[i]=context;
+			fft_handles->c_handles++;
+		}
+		return context;
+	}
+
 	return NULL;
 	
 }
@@ -207,7 +254,8 @@ void init_conv_handles(void){
 	conv_handles = (CONVOLUTION_HANDLES*) calloc(1,sizeof(CONVOLUTION_HANDLES));
 }
 
-JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastConvolutionContext__I_3F(JNIEnv* env, jclass object, jint samples, jfloatArray kernel){
+JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastConvolutionContext__I_3F_3F(JNIEnv* env, jclass object, jint samples, jfloatArray kernel_re, jfloatArray kernel_im){
+	
 	if(!fft_handles){
 		init_fft_handles();
 	}
@@ -218,12 +266,17 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastC
 	
 	if((conv_handles->c_handles+1) > MAX_CONV_HANDLES) return -1;
 	
-	//retrieve kernel
-	jsize len = (*env)->GetArrayLength(env, kernel);
-	float* fkernel = (float*) (*env)->GetFloatArrayElements(env, kernel, 0);
+	jsize len_re = (*env)->GetArrayLength(env, kernel_re);
+	jsize len_im = (*env)->GetArrayLength(env, kernel_im);
 	
-	if(len>samples){
-		len = samples;
+	if(len_im!=len_re) return -1;
+	
+	//retrieve kernel
+	float* fkernel_re = (float*) (*env)->GetFloatArrayElements(env, kernel_re, 0);
+	float* fkernel_im = (float*) (*env)->GetFloatArrayElements(env, kernel_im, 0);
+	
+	if(len_re>samples){
+		len_re = samples;
 	}
 
 	//create a new kernel buffer for complex processing
@@ -231,33 +284,39 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastC
 
 	//pointer to real part of the real part
 	float* re = (float*) c_kernel->re;
+	float* im = (float*) c_kernel->im;
 
 	int i;
 
-	for(i=0;i<len;i++){
-		re[i] = fkernel[i];
+	for(i=0;i<len_re;i++){
+		re[i] = fkernel_re[i];
+		im[i] = fkernel_im[i];
 	}
 	
 	//reuse compatible fft contexts
 	FFT_CONTEXT* fft  = look_up_or_create_compatible_fft_context(samples,CPLX_TYPE_SP,FFT_MODE_NORMAL);
 	FFT_CONTEXT* ifft = look_up_or_create_compatible_fft_context(samples,CPLX_TYPE_SP,FFT_MODE_INVERSE);
 	
-	
-	CONVOLUTION_CONTEXT* context = lsfft_init_convolution_using_fft_context(fft,ifft,c_kernel);
-	
+
+	//get an unused slot for the convolution
 	for(i=0;i<MAX_CONV_HANDLES;i++){
 		if(conv_handles->storage[i]==NULL) break;
 	}
 	
+	//create new context
+	CONVOLUTION_CONTEXT* context = lsfft_init_convolution_using_fft_context(fft,ifft,c_kernel);
+	//assing new colvolution context to the empty spot
+	
 	conv_handles->storage[i] = context;
 	conv_handles->c_handles++;
 	
-	(*env)->ReleaseFloatArrayElements(env, kernel, fkernel, 0);
-	
+	(*env)->ReleaseFloatArrayElements(env, kernel_re, fkernel_re, 0);
+	(*env)->ReleaseFloatArrayElements(env, kernel_im, fkernel_im, 0);
+	//return handle for java library
 	return i;
 }
 
-JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastConvolutionContext__I_3D(JNIEnv* env, jclass object, jint samples, jdoubleArray kernel){
+JNIEXPORT jint JNICALL JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastConvolutionContext__I_3D_3D(JNIEnv* env, jclass object, jint samples, jdoubleArray kernel_re,jdoubleArray kernel_im){
 	
 	if(!fft_handles){
 		init_fft_handles();
@@ -269,104 +328,141 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastC
 	
 	if((conv_handles->c_handles+1) > MAX_CONV_HANDLES) return -1;
 	
+	jsize len_re = (*env)->GetArrayLength(env, kernel_re);
+	jsize len_im = (*env)->GetArrayLength(env, kernel_im);
+	
+	if(len_im!=len_re) return -1;
+	
 	//retrieve kernel
-	jsize len = (*env)->GetArrayLength(env, kernel);
-	double* fkernel = (double*) (*env)->GetDoubleArrayElements(env, kernel, 0);
+	jdouble* fkernel_re = (double*) (*env)->GetDoubleArrayElements(env, kernel_re, 0);
+	jdouble* fkernel_im = (double*) (*env)->GetDoubleArrayElements(env, kernel_im, 0);
+	
+	if(len_re>samples){
+		len_re = samples;
+	}
 
 	//create a new kernel buffer for complex processing
 	CPLX_SAMPLES* c_kernel = lsfft_alloc_complex_buffer(samples,CPLX_TYPE_DP);
 
 	//pointer to real part of the real part
 	double* re = (double*) c_kernel->re;
-	
-	if(len>samples){
-		len = samples;
-	}
+	double* im = (double*) c_kernel->im;
 
 	int i;
 
-	for(i=0;i<len;i++){
-		re[i] = fkernel[i];
+	for(i=0;i<len_re;i++){
+		re[i] = fkernel_re[i];
+		im[i] = fkernel_im[i];
 	}
 	
 	//reuse compatible fft contexts
 	FFT_CONTEXT* fft  = look_up_or_create_compatible_fft_context(samples,CPLX_TYPE_DP,FFT_MODE_NORMAL);
 	FFT_CONTEXT* ifft = look_up_or_create_compatible_fft_context(samples,CPLX_TYPE_DP,FFT_MODE_INVERSE);
 	
-	
-	CONVOLUTION_CONTEXT* context = lsfft_init_convolution_using_fft_context(fft,ifft,c_kernel);
-	
+
+	//get an unused slot for the convolution
 	for(i=0;i<MAX_CONV_HANDLES;i++){
 		if(conv_handles->storage[i]==NULL) break;
 	}
 	
+	//create new context
+	CONVOLUTION_CONTEXT* context = lsfft_init_convolution_using_fft_context(fft,ifft,c_kernel);
+	//assing new colvolution context to the empty spot
+	
 	conv_handles->storage[i] = context;
 	conv_handles->c_handles++;
 	
-	(*env)->ReleaseDoubleArrayElements(env, kernel, fkernel, 0);
-	
+	(*env)->ReleaseDoubleArrayElements(env, kernel_re, fkernel_re, 0);
+	(*env)->ReleaseDoubleArrayElements(env, kernel_im, fkernel_im, 0);
+	//return handle for java library
 	return i;
 }
 
-JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastConvolutionContext__I_3S(JNIEnv* env, jclass object, jint samples, jshortArray kernel){
+JNIEXPORT jint JNICALL JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_createFastConvolutionContext__I_3S_3S(JNIEnv* env, jclass object, jint samples, jshortArray kernel_re,jshortArray kernel_im){
 	if(!fft_handles){
 		init_fft_handles();
+		//fprintf(stderr,"no fft handles!\n");
 	}
 	
 	if(!conv_handles){
 		init_conv_handles();
+		//fprintf(stderr,"no convolution handles!\n");
 	}
 	
 	if((conv_handles->c_handles+1) > MAX_CONV_HANDLES) return -1;
 	
+	jsize len_re = (*env)->GetArrayLength(env, kernel_re);
+	jsize len_im = (*env)->GetArrayLength(env, kernel_im);
+	
+	//fprintf(stderr,"size of kernel :%d\n",len_re);
+	
+	if(len_im!=len_re) return -1;
+	
 	//retrieve kernel
-	jsize len = (*env)->GetArrayLength(env, kernel);
-	int16_t* fkernel = (int16_t*) (*env)->GetShortArrayElements(env, kernel, 0);
+	jshort* fkernel_re =  (*env)->GetShortArrayElements(env, kernel_re, 0);
+	jshort* fkernel_im =  (*env)->GetShortArrayElements(env, kernel_im, 0);
+	
+	//fprintf(stderr,"got kernel data!\n");
+	
+	//crop if user assignes wrong convolution
+	if(len_re>samples){
+		len_re = samples;
+	}
 
 	//create a new kernel buffer for complex processing
 	CPLX_SAMPLES* c_kernel = lsfft_alloc_complex_buffer(samples,CPLX_TYPE_INT);
 
 	//pointer to real part of the real part
 	int16_t* re = (int16_t*) c_kernel->re;
-	
-	if(len>samples){
-		len = samples;
-	}
+	int16_t* im = (int16_t*) c_kernel->im;
 
 	int i;
-
-	for(i=0;i<len;i++){
-		re[i] = fkernel[i];
+	//copy samples
+	for(i=0;i<len_re;i++){
+		re[i] = fkernel_re[i];
+		im[i] = fkernel_im[i];
 	}
 	
 	//reuse compatible fft contexts
 	FFT_CONTEXT* fft  = look_up_or_create_compatible_fft_context(samples,CPLX_TYPE_INT,FFT_MODE_NORMAL);
 	FFT_CONTEXT* ifft = look_up_or_create_compatible_fft_context(samples,CPLX_TYPE_INT,FFT_MODE_INVERSE);
 	
-	
-	CONVOLUTION_CONTEXT* context = lsfft_init_convolution_using_fft_context(fft,ifft,c_kernel);
-	
+
+	//get an unused slot for the convolution
 	for(i=0;i<MAX_CONV_HANDLES;i++){
 		if(conv_handles->storage[i]==NULL) break;
 	}
 	
+	//create new context
+	CONVOLUTION_CONTEXT* context = lsfft_init_convolution_using_fft_context(fft,ifft,c_kernel);
+	//assing new colvolution context to the empty spot
+	
 	conv_handles->storage[i] = context;
 	conv_handles->c_handles++;
 	
-	(*env)->ReleaseShortArrayElements(env, kernel, fkernel, 0);
+	(*env)->ReleaseShortArrayElements(env, kernel_re, fkernel_re, 0);
+	(*env)->ReleaseShortArrayElements(env, kernel_im, fkernel_im, 0);
+	//return handle for java library
+	//fprintf(stderr,"returning to caller!\n");
 	
 	return i;
 }
 
-JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFastConvolution__I_3F(JNIEnv* env, jclass object, jint handle, jfloatArray signal){
+JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFastConvolution__I_3F_3F(JNIEnv* env, jclass object, jint handle, jfloatArray signal_re,jfloatArray signal_im){
 	
 	if(!conv_handles) return;
 	
 	if(conv_handles->c_handles > 0 && conv_handles->storage[handle] != NULL){
-		jsize len = (*env)->GetArrayLength(env,signal);
-		float* re = (float*) (*env)->GetFloatArrayElements(env, signal, 0);
+		jsize len_re  = (*env)->GetArrayLength(env,signal_re);
+		jsize len_im  = (*env)->GetArrayLength(env,signal_im);
+		
+		float* re = (float*) (*env)->GetFloatArrayElements(env, signal_re, 0);
+		float* im = (float*) (*env)->GetFloatArrayElements(env, signal_im, 0);
+		
+		if(len_re!=len_re) return;
 		
 		CONVOLUTION_CONTEXT* context = conv_handles->storage[handle];
+		
 		CPLX_SAMPLES csignal;
 		
 		int copy_switch = 0;
@@ -378,24 +474,24 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFast
 		memset(tre,0,sizeof(tre));
 		memset(tim,0,sizeof(tim));
 		
-		if(len == context->samples){
+		if(len_re == context->samples){
 			csignal.re = re;
-			csignal.im = &tim;
+			csignal.im = im;
 		} else {
 			copy_switch=1;
 			uint32_t length;
 			//crop if signal is too long
-			if(context->samples < len){
+			if(context->samples < len_re){
 				length = context->samples;
 			} else {
-				length = len;
+				length = len_re;
 			}
 			
 			//copy
 			int i=0;
 			for(;i<length;i++){
 				tre[i] = re[i];
-				tim[i] = 0;
+				tim[i] = im[i];
 			}
 			//assign
 			csignal.re = &tre;
@@ -410,31 +506,40 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFast
 		//copy back the result if necessary
 		if(copy_switch){
 			uint32_t length;
-			if(context->samples < len){
+			if(context->samples < len_re){
 				length = context->samples;
 			} else {
-				length = len;
+				length = len_re;
 			}
 			
 			int i=0;
 			
 			for(;i<length;i++){
 				re[i] = ((float*)csignal.re)[i];
+				im[i] = ((float*)csignal.im)[i];
 			}
 		}
 		
-		(*env)->ReleaseFloatArrayElements(env, signal,  re, 0);
+		(*env)->ReleaseFloatArrayElements(env, signal_re,  re, 0);
+		(*env)->ReleaseFloatArrayElements(env, signal_im,  im, 0);
 	}
 }
 
-JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFastConvolution__I_3D(JNIEnv* env, jclass object, jint handle, jdoubleArray signal){
+JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFastConvolution__I_3D_3D(JNIEnv* env, jclass object, jint handle, jdoubleArray signal_re,jdoubleArray signal_im){
+	
 	if(!conv_handles) return;
 	
-	if(conv_handles->c_handles>0 && conv_handles->storage[handle] != NULL){
-		jsize len = (*env)->GetArrayLength(env,signal);
-		double* re = (double*) (*env)->GetDoubleArrayElements(env, signal, 0);
+	if(conv_handles->c_handles > 0 && conv_handles->storage[handle] != NULL){
+		jsize len_re  = (*env)->GetArrayLength(env,signal_re);
+		jsize len_im  = (*env)->GetArrayLength(env,signal_im);
+		
+		double* re = (double*) (*env)->GetDoubleArrayElements(env, signal_re, 0);
+		double* im = (double*) (*env)->GetDoubleArrayElements(env, signal_im, 0);
+		
+		if(len_re!=len_re) return;
 		
 		CONVOLUTION_CONTEXT* context = conv_handles->storage[handle];
+		
 		CPLX_SAMPLES csignal;
 		
 		int copy_switch = 0;
@@ -446,62 +551,72 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFast
 		memset(tre,0,sizeof(tre));
 		memset(tim,0,sizeof(tim));
 		
-		if(len == context->samples){			
+		if(len_re == context->samples){
 			csignal.re = re;
-			csignal.im = &tim;
+			csignal.im = im;
 		} else {
 			copy_switch=1;
 			uint32_t length;
-			
-			if(context->samples < len){
+			//crop if signal is too long
+			if(context->samples < len_re){
 				length = context->samples;
 			} else {
-				length = len;
+				length = len_re;
 			}
 			
+			//copy
 			int i=0;
 			for(;i<length;i++){
 				tre[i] = re[i];
-				tim[i] = 0;
+				tim[i] = im[i];
 			}
-			
+			//assign
 			csignal.re = &tre;
 			csignal.im = &tim;
 		}
 		
 		csignal.length = context->samples;
-		csignal.type   = CPLX_TYPE_DP;
+		csignal.type   = CPLX_TYPE_SP;
 		
 		lsfft_perform_convolution(context,&csignal);
 		
 		//copy back the result if necessary
 		if(copy_switch){
 			uint32_t length;
-			if(context->samples < len){
+			if(context->samples < len_re){
 				length = context->samples;
 			} else {
-				length = len;
+				length = len_re;
 			}
 			
 			int i=0;
 			
 			for(;i<length;i++){
 				re[i] = ((double*)csignal.re)[i];
+				im[i] = ((double*)csignal.im)[i];
 			}
 		}
 		
-		(*env)->ReleaseDoubleArrayElements(env, signal,  re, 0);
+		(*env)->ReleaseDoubleArrayElements(env, signal_re,  re, 0);
+		(*env)->ReleaseDoubleArrayElements(env, signal_im,  im, 0);
 	}
 }
 
-JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFastConvolution__I_3S(JNIEnv* env, jclass object, jint handle, jshortArray signal){
+JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFastConvolution__I_3S_3S(JNIEnv* env, jclass object, jint handle, jshortArray signal_re,jshortArray signal_im){
+	
 	if(!conv_handles) return;
 	
-	if(conv_handles->c_handles>0 && conv_handles->storage[handle] != NULL){
-		jsize len = (*env)->GetArrayLength(env,signal);
-		int16_t* re = (int16_t*) (*env)->GetShortArrayElements(env, signal, 0);
+	if(conv_handles->c_handles > 0 && conv_handles->storage[handle] != NULL){
+		jsize len_re  = (*env)->GetArrayLength(env,signal_re);
+		jsize len_im  = (*env)->GetArrayLength(env,signal_im);
+		
+		jshort* re = (*env)->GetShortArrayElements(env, signal_re, 0);
+		jshort* im = (*env)->GetShortArrayElements(env, signal_im, 0);
+		
+		if(len_re!=len_re) return;
 		
 		CONVOLUTION_CONTEXT* context = conv_handles->storage[handle];
+		
 		CPLX_SAMPLES csignal;
 		
 		int copy_switch = 0;
@@ -513,51 +628,61 @@ JNIEXPORT void JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_performFast
 		memset(tre,0,sizeof(tre));
 		memset(tim,0,sizeof(tim));
 		
-		if(len == context->samples){			
+		if(len_re == context->samples){
 			csignal.re = re;
-			csignal.im = &tim;
+			csignal.im = im;
 		} else {
 			copy_switch=1;
 			uint32_t length;
-			
-			if(context->samples < len){
+			//crop if signal is too long
+			if(context->samples < len_re){
 				length = context->samples;
 			} else {
-				length = len;
+				length = len_re;
 			}
 			
+			//copy
 			int i=0;
 			for(;i<length;i++){
 				tre[i] = re[i];
-				tim[i] = 0;
+				tim[i] = im[i];
 			}
-			
-			csignal.re = &tre;
-			csignal.im = &tim;
+			//assign
+			csignal.re = tre;
+			csignal.im = tim;
 		}
 		
 		csignal.length = context->samples;
-		csignal.type   = CPLX_TYPE_INT;
+		csignal.type   = CPLX_TYPE_SP;
 		
 		lsfft_perform_convolution(context,&csignal);
 		
 		//copy back the result if necessary
 		if(copy_switch){
 			uint32_t length;
-			if(context->samples < len){
+			if(context->samples < len_re){
 				length = context->samples;
 			} else {
-				length = len;
+				length = len_re;
 			}
 			
 			int i=0;
 			
 			for(;i<length;i++){
 				re[i] = ((int16_t*)csignal.re)[i];
+				im[i] = ((int16_t*)csignal.im)[i];
 			}
 		}
 		
-		(*env)->ReleaseShortArrayElements(env, signal,  re, 0);
+		int i;
+		
+		/*for(i=0;i<context->samples;i++){
+			fprintf(stderr,"%d + i * %d\n",re[i],im[i]);
+		}*/
+		
+		
+		(*env)->ReleaseShortArrayElements(env, signal_re,  re, 0);
+		(*env)->ReleaseShortArrayElements(env, signal_im,  im, 0);
 	}
 }
 
@@ -575,10 +700,42 @@ JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_destroyFast
 		free(context);
 		
 		conv_handles->storage[handle] = NULL;
+		conv_handles->c_handles--;
 		
 		return 0;
 	}
 	
 	return -1;
+}
+
+
+JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_getTransformedConvolutionKernel__I_3S(JNIEnv * env, jclass class, jint type, jshortArray kernel_re, jshortArray kernel_im){
+	
+	return -1;
+}
+
+JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_getTransformedConvolutionKernel__I_3F(JNIEnv * env, jclass class, jint type, jfloatArray kernel_re, jfloatArray kernel_im){
+	
+	
+	
+	return -1;
+}
+
+JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_getTransformedConvolutionKernel__I_3D(JNIEnv * env, jclass class, jint type, jdoubleArray kernel_re, jdoubleArray kernel_im){
+	
+	return -1;
+}
+
+JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_getConvolutionSize (JNIEnv * env, jclass class, jint handle){
+	 if(conv_handles!=NULL){
+		 if(conv_handles->storage[handle] != NULL){
+			 return conv_handles->storage[handle]->samples;
+		}
+	}
+	return -1;
+}
+
+JNIEXPORT jint JNICALL Java_in_waslos_kneo_libsimplefft_FFTProcessor_findFFTHandle (JNIEnv * env, jclass class, jint type, jint size , jint mode){
+	  return look_up_compatible_fft_context(size, type,mode);
 }
 

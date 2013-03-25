@@ -90,7 +90,9 @@ CONVOLUTION_CONTEXT* lsfft_init_convolution_using_fft_context(FFT_CONTEXT* fft, 
 void lsfft_perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signal){
 	if(context && signal){
 		//compute the fft of the signal
+		//fprintf(stderr,"performing fft...\n");
 		lsfft_perform(context->fft_context,signal);
+		//fprintf(stderr,"fft performed!\n");
 		
 		//integer pointers
 		int16_t* ikre = (int16_t*) context->kernel->re;
@@ -110,6 +112,8 @@ void lsfft_perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signa
 		double* dsre = (double*) signal->re;
 		double* dsim = (double*) signal->im;
 		
+		//fprintf(stderr,"pointers aquired!\n");
+		
 		//point wise multiplication
 		int i = 0;
 		switch(context->type){
@@ -118,6 +122,7 @@ void lsfft_perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signa
 					int16_t itmp = isre[i];
 					isre[i] = re_mul_i(isre[i],isim[i],ikre[i],ikim[i]);
 					isim[i] = im_mul_i(itmp,isim[i],ikre[i],ikim[i]);
+					//fprintf(stderr,"%d + i * %d\n",isre[i],isim[i]);
 				}
 			break;
 			
@@ -137,8 +142,10 @@ void lsfft_perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signa
 				}
 			break;
 		}
+		//fprintf(stderr,"point wise multiplication done!\n");
 		//perform the ifft of the convoluted signal
 		lsfft_perform(context->ifft_context,signal);
+		//fprintf(stderr,"ifft done!\n");
 	}
 }
 

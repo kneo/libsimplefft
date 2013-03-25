@@ -67,11 +67,11 @@ double im_mul_d(double re1,double im1, double re2,double im2){
 }
 
 int16_t re_mul_i(int16_t re1,int16_t im1, float re2,float im2){
-	return re1*re2 - im1*im2;
+	return (int16_t) roundf(re1*re2 - im1*im2);
 }
 
 int16_t im_mul_i(int16_t re1,int16_t im1, float re2,float im2){
-	return re1*im2 + im1*re2;
+	return (int16_t) roundf(re1*im2 + im1*re2);
 }
 
 

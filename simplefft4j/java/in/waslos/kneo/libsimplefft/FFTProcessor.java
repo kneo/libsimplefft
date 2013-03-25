@@ -21,8 +21,8 @@
 package in.waslos.kneo.libsimplefft;
 
 public class FFTProcessor{
-	public static final byte FFT_MODE_INVERSE = 1;
 	public static final byte FFT_MODE_NORMAL  = 0;
+	public static final byte FFT_MODE_INVERSE = 1;
 
 	public static final byte CPLX_TYPE_SP  = 0;
 	public static final byte CPLX_TYPE_DP  = 1;
@@ -40,13 +40,21 @@ public class FFTProcessor{
 	private static native void performFFTd(int handle, double[] re, double[] im);
 	private static native void performFFTi(int handle, short[]  re, short[]  im);
 	
-	public static native int createFastConvolutionContext(int samples, float[]  kernel);
-	public static native int createFastConvolutionContext(int samples, double[] kernel);
-	public static native int createFastConvolutionContext(int samples, short[]  kernel);	
+	public static native int findFFTHandle(int type,int size,int mode);
 	
-	public static native void performFastConvolution(int handle, float[]  signal);
-	public static native void performFastConvolution(int handle, double[] signal);
-	public static native void performFastConvolution(int handle, short[]  signal);
+	public static native int createFastConvolutionContext(int samples, float[] kernel_re,float[] kernel_im);
+	public static native int createFastConvolutionContext(int samples, double[] kernel_re,double[] kernel_im);
+	public static native int createFastConvolutionContext(int samples, short[] kernel_re,short[] kernel_im);
+	
+	public static native int getConvolutionSize(int handle);
+	
+	public static native int getTransformedConvolutionKernel(int handle, short[] kernel_re,short[] kernel_im);
+	public static native int getTransformedConvolutionKernel(int handle, float[] kernel_re,float[] kernel_im);
+	public static native int getTransformedConvolutionKernel(int handle, double[] kernel_re,double[] kernel_im);
+	
+	public static native void performFastConvolution(int handle, float[]  signal_re,float[]  signal_im);
+	public static native void performFastConvolution(int handle, double[] signal_re,double[] signal_im);
+	public static native void performFastConvolution(int handle, short[]  signal_re, short[] signal_im);
 	
 	public static native int destroyFastConvolution(int handle);
 
@@ -71,48 +79,178 @@ public class FFTProcessor{
 	}
 	
 	public static void main(String[] argV){
-		//System.loadLibrary("simplefft");
-
-		int size = 8;
+		System.err.println("Testing INT:");
+		test_int();
+		System.err.println("Testing FLOAT:");
+		test_float();
+		System.err.println("Testing DOUBLE:");
+		test_double();
+	}
 	
-		int handle = FFTProcessor.initializeFFT(size,FFTProcessor.FFT_MODE_NORMAL,FFTProcessor.CPLX_TYPE_INT);
-		//int ihandle = FFTProcessor.initializeFFT(size,FFTProcessor.FFT_MODE_INVERSE,FFTProcessor.CPLX_TYPE_INT);
+	private static void test_int(){
+		//System.loadLibrary("simplefft");
+		int size = 16;
 		
+		short[] kernel_re = {-1,0,1};
+		short[] kernel_im = {0, 0,0};
 		
-		
-		System.out.println("handle retrieved : "+handle/*/+" inverse "+ihandle*/);
-
 		short[] re = new short[size];
 		short[] im = new short[size];
+	
+		int handle    = FFTProcessor.initializeFFT(size, FFTProcessor.FFT_MODE_NORMAL,  FFTProcessor.CPLX_TYPE_INT);
+		int ihandle   = FFTProcessor.initializeFFT(size, FFTProcessor.FFT_MODE_INVERSE, FFTProcessor.CPLX_TYPE_INT);
+		int conhandle = FFTProcessor.createFastConvolutionContext(size,kernel_re,kernel_im);
 		
+		System.out.println("handle retrieved : "+handle+" inverse : "+ihandle+" convolution :"+conhandle);
+
 		for(int i = 0;i<size;i++){
-			re[i] = (short)i;
+			re[i] = (short)(i);
 		}
 		
+<<<<<<< HEAD
 		//laplace filter
 		short[] kernel = {1,-2,1};
+=======
+		long time = System.currentTimeMillis();
+		performFFT(handle,re,im);
+		time = System.currentTimeMillis() - time;
+		System.out.println("runtime : "+time+"ms");
+		System.err.println("FFT:");
+		for(int i = 0;i<size;i++){
+			System.out.printf("%d + %d * i\n",re[i],im[i]);
+		}
 		
-		int conhandle = FFTProcessor.createFastConvolutionContext(8,kernel);
+		System.err.println("Inverse FFT:");
+		performFFT(ihandle,re,im);
+		
+		for(int i = 0;i<size;i++){
+			System.out.printf("%d + %d * i\n",re[i],im[i]);
+		}
+		
+		System.err.println("Convolution:");
+		
+		performFastConvolution(conhandle,re,im);
+>>>>>>> 3ee32320174e428a4e12eb637a574754951fe0cc
+		
+		for(int i = 0;i<size;i++){
+			System.out.printf("%d + %d * i\n",re[i],im[i]);
+		}
+		
+		//int ihandle = FFTProcessor.initializeFFT(size,FFTProcessor.FFT_MODE_INVERSE,FFTProcessor.CPLX_TYPE_INT);
+		System.err.println("deleting Convolution...");
+		destroyFastConvolution(conhandle);
+		System.err.println("deleting FFT...");
+		destroyFFT(handle);
+		System.err.println("deleting IFFT...");
+		destroyFFT(ihandle);
+	}
+	
+	private static void test_float(){
+		//System.loadLibrary("simplefft");
+		int size = 16;
+		
+		float[] kernel_re = {-1,0,1};
+		float[] kernel_im = {0, 0,0};
+		
+		float[] re = new float[size];
+		float[] im = new float[size];
+	
+		int handle    = FFTProcessor.initializeFFT(size, FFTProcessor.FFT_MODE_NORMAL,  FFTProcessor.CPLX_TYPE_SP);
+		int ihandle   = FFTProcessor.initializeFFT(size, FFTProcessor.FFT_MODE_INVERSE, FFTProcessor.CPLX_TYPE_SP);
+		int conhandle = FFTProcessor.createFastConvolutionContext(size,kernel_re,kernel_im);
+		
+		System.out.println("handle retrieved : "+handle+" inverse : "+ihandle+" convolution :"+conhandle);
+
+		for(int i = 0;i<size;i++){
+			re[i] = (short)(i);
+		}
 		
 		long time = System.currentTimeMillis();
 		performFFT(handle,re,im);
-		
-		
 		time = System.currentTimeMillis() - time;
 		System.out.println("runtime : "+time+"ms");
-		
+		System.err.println("FFT:");
 		for(int i = 0;i<size;i++){
-			System.out.printf("%d + %d * i\n",re[i],im[i]);
+			System.out.printf("%f + %f * i\n",re[i],im[i]);
 		}
 		
-		
-		performFastConvolution(conhandle,re);
+		System.err.println("Inverse FFT:");
+		performFFT(ihandle,re,im);
 		
 		for(int i = 0;i<size;i++){
-			System.out.printf("%d + %d * i\n",re[i],im[i]);
+			System.out.printf("%f + %f * i\n",re[i],im[i]);
 		}
 		
-		int ihandle = FFTProcessor.initializeFFT(size,FFTProcessor.FFT_MODE_INVERSE,FFTProcessor.CPLX_TYPE_INT);
+		System.err.println("Convolution:");
+		
+		performFastConvolution(conhandle,re,im);
+		
+		for(int i = 0;i<size;i++){
+			System.out.printf("%f + %f * i\n",re[i],im[i]);
+		}
+		
+		//int ihandle = FFTProcessor.initializeFFT(size,FFTProcessor.FFT_MODE_INVERSE,FFTProcessor.CPLX_TYPE_INT);
+		System.err.println("deleting Convolution...");
+		destroyFastConvolution(conhandle);
+		System.err.println("deleting FFT...");
+		destroyFFT(handle);
+		System.err.println("deleting IFFT...");
+		destroyFFT(ihandle);
+	}
+	
+	private static void test_double(){
+		//System.loadLibrary("simplefft");
+		int size = 16;
+		
+		double[] kernel_re = {-1,0,1};
+		double[] kernel_im = {0, 0,0};
+		
+		double[] re = new double[size];
+		double[] im = new double[size];
+	
+		int handle    = FFTProcessor.initializeFFT(size, FFTProcessor.FFT_MODE_NORMAL,  FFTProcessor.CPLX_TYPE_DP);
+		int ihandle   = FFTProcessor.initializeFFT(size, FFTProcessor.FFT_MODE_INVERSE, FFTProcessor.CPLX_TYPE_DP);
+		int conhandle = FFTProcessor.createFastConvolutionContext(size,kernel_re,kernel_im);
+		
+		System.out.println("handle retrieved : "+handle+" inverse : "+ihandle+" convolution :"+conhandle);
+
+		for(int i = 0;i<size;i++){
+			re[i] = (short)(i);
+		}
+		
+		long time = System.currentTimeMillis();
+		performFFT(handle,re,im);
+		time = System.currentTimeMillis() - time;
+		System.out.println("runtime : "+time+"ms");
+		System.err.println("FFT:");
+		for(int i = 0;i<size;i++){
+			System.out.printf("%f + %f * i\n",re[i],im[i]);
+		}
+		
+		System.err.println("Inverse FFT:");
+		performFFT(ihandle,re,im);
+		
+		for(int i = 0;i<size;i++){
+			System.out.printf("%f + %f * i\n",re[i],im[i]);
+		}
+		
+		System.err.println("Convolution:");
+		
+		performFastConvolution(conhandle,re,im);
+		
+		for(int i = 0;i<size;i++){
+			System.out.printf("%f + %f * i\n",re[i],im[i]);
+		}
+		
+		System.err.println("deleting Convolution...");
+		destroyFastConvolution(conhandle);
+		System.err.println("deleting FFT...");
+		destroyFFT(handle);
+		System.err.println("deleting IFFT...");
+		destroyFFT(ihandle);
+		
+		//int ihandle = FFTProcessor.initializeFFT(size,FFTProcessor.FFT_MODE_INVERSE,FFTProcessor.CPLX_TYPE_INT);
 	}
 }
+
 
