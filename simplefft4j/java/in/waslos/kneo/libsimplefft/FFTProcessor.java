@@ -107,10 +107,6 @@ public class FFTProcessor{
 			re[i] = (short)(i);
 		}
 		
-<<<<<<< HEAD
-		//laplace filter
-		short[] kernel = {1,-2,1};
-=======
 		long time = System.currentTimeMillis();
 		performFFT(handle,re,im);
 		time = System.currentTimeMillis() - time;
@@ -128,9 +124,7 @@ public class FFTProcessor{
 		}
 		
 		System.err.println("Convolution:");
-		
 		performFastConvolution(conhandle,re,im);
->>>>>>> 3ee32320174e428a4e12eb637a574754951fe0cc
 		
 		for(int i = 0;i<size;i++){
 			System.out.printf("%d + %d * i\n",re[i],im[i]);
