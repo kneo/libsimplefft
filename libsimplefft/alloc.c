@@ -79,3 +79,26 @@ void lsfft_free_complex_buffer(CPLX_SAMPLES* buffer){
 	}
 }
 
+CPLX_SAMPLES* lsfft_alloc_complex_buffer_md(uint32_t samples, uint8_t type, uint32_t dimensions) {
+
+	if(type>-1 && type<3){
+		unsigned int samp;
+		
+		//allocate 2^n samples
+		//if 2 is not the nth root of samples
+		//generate a buffer with 2^(log_2(samples)+1) samples
+		
+		if(samples % 2 == 0 && bitcount(samples)==1){
+			samp = samples;
+		} else {
+			samp = exp_2(log_2(samples)+1);
+		}
+		
+		//allocate the basic complex sample buffer structure
+		CPLX_SAMPLES* res = alloc_samples_struct();
+
+
+
+	}
+}
+
