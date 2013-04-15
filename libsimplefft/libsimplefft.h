@@ -51,4 +51,12 @@ FFT_CONTEXT* lsfft_init(uint32_t samples, uint8_t type, uint8_t mode);
 */
 void lsfft_destroy_context(FFT_CONTEXT* context);
 
+/**Initialize a multi
+*@param samples amount of samples to process
+*@param type precision type of the FFT
+*@param mode of the FFT (inverse/FF)
+*@param dimensions of the data
+*/
+FFT_CONTEXT* lsfft_init_md(uint32_t samples, uint8_t type, uint8_t mode, uint32_t dimensions);
+
 #endif

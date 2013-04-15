@@ -360,62 +360,32 @@ void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 		//printf("context type:%d size:%d mode:%d \n", context->type,context->samples,context->mode);
 	
 		if(context->samples == buffer->length){
-			if(context->mode==FFT_MODE_NORMAL){
 				switch(context->type){
 					case CPLX_TYPE_SP:
 						//printf("performing fft with %d samples single precision\n",context->samples);
 						//printf("clocks %d\n",(int) clock());
-						buffer->exec_time = clock();
+						//buffer->exec_time = clock();
 						fft_float(context,buffer);
 						bit_reverse_float(context,buffer);
-						buffer->exec_time = clock() - buffer->exec_time;
+						//buffer->exec_time = clock() - buffer->exec_time;
 					break;
 					
 					case CPLX_TYPE_DP:
 						//printf("performing fft with %d samples double precision\n",context->samples);
 						//printf("clocks %d\n",(int) clock());
-						buffer->exec_time = clock();
+						//buffer->exec_time = clock();
 						fft_double(context,buffer);
 						bit_reverse_double(context,buffer);
-						buffer->exec_time = clock() - buffer->exec_time;
+						//buffer->exec_time = clock() - buffer->exec_time;
 					break;
 					
 					case CPLX_TYPE_INT:
 						//printf("performing fft with %d samples double precision\n",context->samples);
 						//printf("clocks %d\n",(int) clock());
-						buffer->exec_time = clock();
+						//buffer->exec_time = clock();
 						fft_int(context,buffer);
 						bit_reverse_int(context,buffer);
-						buffer->exec_time = clock() - buffer->exec_time;
-					break;
-				}
-			} else {
-				switch(context->type){
-					case CPLX_TYPE_SP:
-						//printf("performing ifft with %d samples single precision\n",context->samples);
-						//printf("clocks %d\n",(int) clock());
-						buffer->exec_time = clock();
-						fft_float(context,buffer);
-						bit_reverse_float(context,buffer);
-						buffer->exec_time = clock() - buffer->exec_time;
-					break;
-					
-					case CPLX_TYPE_DP:
-						//printf("performing fft with %d samples double precision\n",context->samples);
-						//printf("clocks %d\n",(int) clock());
-						buffer->exec_time = clock();
-						fft_double(context,buffer);
-						bit_reverse_double(context,buffer);
-						buffer->exec_time = clock() - buffer->exec_time;
-					break;
-					
-					case CPLX_TYPE_INT:
-						//printf("performing fft with %d samples double precision\n",context->samples);
-						//printf("clocks %d\n",(int) clock());
-						buffer->exec_time = clock();
-						fft_int(context,buffer);
-						bit_reverse_int(context,buffer);
-						buffer->exec_time = clock() - buffer->exec_time;
+						//buffer->exec_time = clock() - buffer->exec_time;
 					break;
 				}
 			}			

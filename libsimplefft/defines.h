@@ -28,15 +28,19 @@ struct CPLX_SAMPLES;
 /**Type holding a buffer of complex samples
 */
 typedef struct CPLX_SAMPLES{
-	uint8_t type;
-	void* buffer;
-	
-	clock_t exec_time;
+
+	//void* buffer;
+	//clock_t exec_time;
 	
 	void* re;
 	void* im;
-	
+
+	uint8_t type;	
 	uint32_t length;
+
+	//required for multi dimensional FFTs
+	uint32_t dimension;
+	uint32_t* dimension_strides;
 }CPLX_SAMPLES;
 
 /**Marker for a normal time domain to frequency domain transform
@@ -46,6 +50,10 @@ typedef struct CPLX_SAMPLES{
 /**Marker for a inverse frequency domain to time domain transform
 */
 #define FFT_MODE_INVERSE (1)
+
+/**Marker to determine multidimensional Fourier Transforms
+*/
+#define FFT_MODE_MD      (2)
 
 /**marker for single precision fft
 */

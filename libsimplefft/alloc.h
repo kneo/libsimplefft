@@ -29,6 +29,11 @@
 */
 CPLX_SAMPLES* lsfft_alloc_complex_buffer(uint32_t samples, uint8_t type);
 
+/**allocates a buffer of complex numbers of type where type is one of the CPLX_TYPE_ defines above
+*Its purpose is to allocate buffers for multi dimensional FFTs
+*/
+CPLX_SAMPLES* lsfft_alloc_complex_buffer_md(uint32_t samples, uint8_t type, uint32_t dimensions);
+
 /**frees a complex number buffer
 */
 void lsfft_free_complex_buffer(CPLX_SAMPLES* buffer);
