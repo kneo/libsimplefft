@@ -130,23 +130,28 @@ CPLX_SAMPLES* lsfft_alloc_complex_buffer_md(uint32_t samples, uint8_t type, uint
 			case CPLX_TYPE_SP: //single precision FFT
 				res->re = (void*) calloc(res->length,sizeof(float));
 				res->im = (void*) calloc(res->length,sizeof(float));
+				res->type_size = sizeof(float);
 			break;
 			
 			case CPLX_TYPE_DP://double precision FFT
 				res->re = (void*) calloc(res->length,sizeof(double));
 				res->im = (void*) calloc(res->length,sizeof(double));
+				res->type_size = sizeof(double);
 			break;
 			
 			case CPLX_TYPE_INT://integer FFT
 				res->re = (void*) calloc(res->length,sizeof(int16_t));
 				res->im = (void*) calloc(res->length,sizeof(int16_t));
+				res->type_size = sizeof(int16_t);
+			break;
+
+			case CPLX_TYPE_BYTE://integer FFT
+				res->re = (void*) calloc(res->length,sizeof(int8_t));
+				res->im = (void*) calloc(res->length,sizeof(int8_t));
+				res->type_size = sizeof(int8_t);
 			break;
 		}
 
-		/*if(res->re && res->im){
-			printf("allocation successfull!\n");
-		}*/
-		
 		return res;
 	} return NULL;
 }

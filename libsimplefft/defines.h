@@ -38,6 +38,7 @@ typedef struct CPLX_SAMPLES{
 	
 	//precision type of the fft (8/16-Bit-Integer, Single or Double precision)
 	uint8_t type;	
+	size_t type_size;
 	//total lenght of the allocated array
 	uint32_t length;
 	//Length of a base side of a fft

@@ -10,10 +10,11 @@ int main(void){
 	
 	//get the sample buffer structure for multi dimension processing
 	//it allocates a 8 bin fft with 2 dimensions
-	CPLX_SAMPLES* samples_md = lsfft_alloc_complex_buffer_md(8,CPLX_TYPE_INT,2);
+
+	CPLX_SAMPLES* samples_md = lsfft_alloc_complex_buffer_md(16,CPLX_TYPE_INT,3);
 
 
-	FFT_CONTEXT* fft_context = lsfft_init(8,CPLX_TYPE_INT,FFT_MODE_NORMAL|FFT_MODE_MD); //get the FFT context
+	FFT_CONTEXT* fft_context = lsfft_init(samples_md->base_length,CPLX_TYPE_INT,FFT_MODE_NORMAL|FFT_MODE_MD); //get the FFT context
 	//FFT_CONTEXT* ifft_context = lsfft_init(16,CPLX_TYPE_INT,FFT_MODE_INVERSE); //get the FFT context
 
 	uint32_t i;
@@ -28,33 +29,47 @@ int main(void){
 	
 	uint32_t index;
 	
-	int16_t tmp_re,tmp_im;
+	int16_t tmp_re,tmp_im,norm=1;
 
-	uint32_t count_vector[buffer->dimension];
+	uint32_t memory_from[buffer->dimension];
+	uint32_t memory_to[buffer->dimension];
+	//initialize vectors
+	memset(memory_from,0,sizeof(memory_from));
+	memset(memory_to,0,sizeof(memory_to));
 
-
-	//initialize vector
-	memset(count_vector,0,sizeof(count_vector));
-	uint32_t counter = 0;
-	uint32_t rev_index;
-	uint32_t stride;
 	uint32_t j;
-	printf("i->vector->lind = value\n");
-	for(i=0;i<buffer->length;i++){
-		printf("%d:->",i);
-		get_memory_vector(count_vector,buffer->dimension_strides,i,buffer->dimension);
 
-		//printf("[%d]:%d -> %d\n",i,index,rev_index);
-		printf("[ ");
-		for(j=0;j<buffer->dimension;j++){
-			printf("%d ",count_vector[j]);
-		}
-		j=get_memory_index(count_vector, buffer->dimension_strides, buffer->dimension);
-		printf("]-> %d = %d + i*%d\n",j,((uint16_t*)samples_md->re)[j],((uint16_t*)samples_md->im)[j]);	
+	uint16_t* re = (uint16_t*)buffer->re;
+	uint16_t* im = (uint16_t*)buffer->im;
+
+	uint32_t axis = 2;
+
+	uint32_t from_index;
+	uint32_t to_index;
+	
+	for(i=0;i<buffer->base_length;i++){
+		printf("%d ",i);
 	}
-	
+	printf("\n");
 
-	
+	for(i=0;i<buffer->base_length / 2;i++){
+		memory_from[axis] = i;
+		memory_to[axis] = fft_context->bit_rev_indices[i];
+
+		from_index = get_memory_index(memory_from,buffer->dimension_strides,buffer->dimension);	//compute the strided indices	
+		to_index   = get_memory_index(memory_to,buffer->dimension_strides,buffer->dimension); //compute the stridet indices of the target
+
+		if(to_index >= from_index){
+			tmp_re = re[from_index]; //simple exchange ...
+			tmp_im = im[from_index];
+			
+			re[from_index] = re[to_index]*norm;
+			im[from_index] = im[to_index]*norm;
+				
+			re[to_index] = tmp_re*norm;
+			im[to_index] = tmp_im*norm;
+		}
+	}
 
 	/*
 	//--FFT AND iFFT
