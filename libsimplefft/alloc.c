@@ -31,7 +31,7 @@ CPLX_SAMPLES* alloc_samples_struct(){
 
 CPLX_SAMPLES* lsfft_alloc_complex_buffer(uint32_t samples, uint8_t type){
 	if(type>-1 && type<3){
-		unsigned int samp;
+		uint32_t samp;
 		
 		//allocate 2^n samples
 		//if 2 is not the nth root of samples
@@ -75,14 +75,21 @@ void lsfft_free_complex_buffer(CPLX_SAMPLES* buffer){
 	if(buffer){
 		free(buffer->re);
 		free(buffer->im);
+		
+		if(buffer->dimension_strides){
+			free(buffer->dimension_strides);
+		}
+
 		free(buffer);
 	}
 }
 
 CPLX_SAMPLES* lsfft_alloc_complex_buffer_md(uint32_t samples, uint8_t type, uint32_t dimensions) {
 
-	if(type>-1 && type<3){
-		unsigned int samp;
+	if(type>-1 && type<3 && dimensions>0){
+		uint32_t samp;
+		uint32_t i;
+		/*printf("allocating multi dimensional complex buffer\n");*/
 		
 		//allocate 2^n samples
 		//if 2 is not the nth root of samples
@@ -97,8 +104,50 @@ CPLX_SAMPLES* lsfft_alloc_complex_buffer_md(uint32_t samples, uint8_t type, uint
 		//allocate the basic complex sample buffer structure
 		CPLX_SAMPLES* res = alloc_samples_struct();
 
+		res->type   = type;
 
+		//assign the base length of the FFT
+		res->base_length = samples;
 
-	}
+		//assign the dimensions count of the fft ... nonegative Integer!
+		res->dimension = dimensions;
+
+		//compute polynomial coefficients of array storage access
+		res->dimension_strides = calloc(dimensions,sizeof(uint32_t));
+
+		//compute the total length of the 
+		res->length = 1;
+
+		for(i=0;i<dimensions;i++){
+			/*printf("Dimension %d Stride %d\n",i,res->length);*/
+			res->dimension_strides[i] = res->length;
+			res->length *= samp;
+		}
+
+		/*printf("Total Length %d\n",res->length);*/
+
+		switch(type){
+			case CPLX_TYPE_SP: //single precision FFT
+				res->re = (void*) calloc(res->length,sizeof(float));
+				res->im = (void*) calloc(res->length,sizeof(float));
+			break;
+			
+			case CPLX_TYPE_DP://double precision FFT
+				res->re = (void*) calloc(res->length,sizeof(double));
+				res->im = (void*) calloc(res->length,sizeof(double));
+			break;
+			
+			case CPLX_TYPE_INT://integer FFT
+				res->re = (void*) calloc(res->length,sizeof(int16_t));
+				res->im = (void*) calloc(res->length,sizeof(int16_t));
+			break;
+		}
+
+		/*if(res->re && res->im){
+			printf("allocation successfull!\n");
+		}*/
+		
+		return res;
+	} return NULL;
 }
 

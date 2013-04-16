@@ -278,7 +278,7 @@ void bit_reverse_float(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 		
 		for(;i < buffer->length;i++){
 			index = context->bit_rev_indices[i];//bit_reversal(samples,i);//
-			if(index>=i){ //<- this is a god damn motherfucking trap!
+			if(index>=i){ 
 				tmp_re = re[i]; //simple exchange ...
 				tmp_im = im[i];
 			
@@ -308,7 +308,7 @@ void bit_reverse_double(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 		
 		for(;i < buffer->length;i++){
 			index = context->bit_rev_indices[i];//bit_reversal(samples,i);//
-			if(index>=i){ //<- this is a god damn motherfucking trap!
+			if(index>=i){ 
 				tmp_re = re[i]; //simple exchange ...
 				tmp_im = im[i];
 			
@@ -341,7 +341,7 @@ void bit_reverse_int(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 		
 		for(;i < buffer->length;i++){
 			index = context->bit_rev_indices[i];//bit_reversal(samples,i);//
-			if(index>=i){ //<- this is a god damn motherfucking trap!			
+			if(index>=i){
 				tmp_re = re[i]; //simple exchange ...
 				tmp_im = im[i];
 			
@@ -355,11 +355,72 @@ void bit_reverse_int(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 	}
 }
 
+
+
+//TODO: 1. bit reversing using array strides!
+//TODO: 2. fft using array strides!
+//TODO: 3. Parallelizing multi dimensional FFTs
+
+/** Compute the memory vector from the linear counter value
+*/
+void get_memory_vector(uint32_t* memory_vector, uint32_t* stride_array, int32_t value, uint32_t dimension){
+	int32_t i;
+	uint32_t frac = value; 
+	//printf("dim :%d\n",dimension);
+
+	for(i=dimension-1; i>-1; i--){
+		//printf("dimension :%d\n",i);
+		memory_vector[i] = frac / stride_array[i];
+		frac  %= stride_array[i];
+		//printf("frac: %d\n",frac);
+	}
+}
+
+/**Compute the index of the counter array within the linear memory block
+*/
+uint32_t get_memory_index(uint32_t* memory_vector, uint32_t* stride_array, uint32_t dimension){
+	uint32_t i = 0;
+	uint32_t res = 0;
+
+	for(;i<dimension;i++){
+		res = res + memory_vector[i] * stride_array[i];
+	}
+
+	return res;
+}
+
+void bit_reverse_int_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
+		uint32_t samples = buffer->length;
+		
+		int i = 0;
+		uint32_t index;
+		
+		int16_t tmp_re,tmp_im;
+
+		uint32_t count_vector[buffer->dimension];
+
+
+		//initialize vector
+		memset(count_vector,0,sizeof(count_vector));
+		uint32_t counter = 0;
+
+
+		for(;i<buffer->length;i++){
+			get_memory_vector(count_vector,buffer->dimension_strides,i,buffer->dimension);
+			
+			index = context->bit_rev_indices[i%buffer->base_length];
+		}	
+}
+
+
+
 void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 	if(context && buffer){
 		//printf("context type:%d size:%d mode:%d \n", context->type,context->samples,context->mode);
-	
-		if(context->samples == buffer->length){
+		if(context->mode&2 != 0){
+			//Multidimensional entrypoint.
+		} else {
+			if(context->samples == buffer->length){
 				switch(context->type){
 					case CPLX_TYPE_SP:
 						//printf("performing fft with %d samples single precision\n",context->samples);
@@ -369,7 +430,7 @@ void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 						bit_reverse_float(context,buffer);
 						//buffer->exec_time = clock() - buffer->exec_time;
 					break;
-					
+				
 					case CPLX_TYPE_DP:
 						//printf("performing fft with %d samples double precision\n",context->samples);
 						//printf("clocks %d\n",(int) clock());
@@ -378,7 +439,7 @@ void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 						bit_reverse_double(context,buffer);
 						//buffer->exec_time = clock() - buffer->exec_time;
 					break;
-					
+				
 					case CPLX_TYPE_INT:
 						//printf("performing fft with %d samples double precision\n",context->samples);
 						//printf("clocks %d\n",(int) clock());
@@ -387,10 +448,12 @@ void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 						bit_reverse_int(context,buffer);
 						//buffer->exec_time = clock() - buffer->exec_time;
 					break;
+
+					case CPLX_TYPE_BYTE:
+						
+					break;
 				}
-			}			
-		} else {
-			
-		}	
+			}		
+		}
 	}
 }

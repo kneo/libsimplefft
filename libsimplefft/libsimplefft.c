@@ -66,8 +66,8 @@ FFT_CONTEXT* lsfft_init(uint32_t samples, uint8_t type, uint8_t mode){
 	} else {
 		 goto error;
 	}
-
-	if(mode>=0 && mode<2) { //determines the mode of the FFT the normal or its inverse
+	//minor modification to support multidimensional FFTs to reuse this code
+	if((mode&1)>=0 && (mode&1)<2) { //determines the mode of the FFT the normal or its inverse
 		res_context->mode = mode;
 	} else {
 		 goto error;

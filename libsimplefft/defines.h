@@ -32,11 +32,16 @@ typedef struct CPLX_SAMPLES{
 	//void* buffer;
 	//clock_t exec_time;
 	
+	//flexible integers
 	void* re;
 	void* im;
-
+	
+	//precision type of the fft (8/16-Bit-Integer, Single or Double precision)
 	uint8_t type;	
+	//total lenght of the allocated array
 	uint32_t length;
+	//Length of a base side of a fft
+	uint32_t base_length;
 
 	//required for multi dimensional FFTs
 	uint32_t dimension;
@@ -65,6 +70,10 @@ typedef struct CPLX_SAMPLES{
 */
 #define CPLX_TYPE_INT (2)
 
+/**marker for 8-Bit sample fft
+*/
+#define CPLX_TYPE_BYTE (3)
+
 /**Holds data required to perform a FFT.
 */
 struct FFT_CONTEXT;
@@ -74,6 +83,7 @@ typedef struct FFT_CONTEXT{
 	uint8_t mode;
 	uint32_t samples;
 	uint32_t stages;
+
 	CPLX_SAMPLES* twiddle_factors;
 	uint32_t* bit_rev_indices;
 }FFT_CONTEXT;
