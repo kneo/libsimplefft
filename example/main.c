@@ -5,71 +5,74 @@
 
 //compile with libsimplefft installed: gcc -o main main.c -lsimplefft
 
+//This function is an addition with carry, which can be provided with a skip mask
+//to tell 
+int inc_vector(uint32_t* result, uint32_t* skip_mask, uint32_t base, uint32_t dimension){
+	uint32_t lsb   = 0; //
+	uint32_t carry = 0;
+
+	do{
+		start:
+			if(lsb >= dimension){ //prevent overflow and possible buffer overrun
+				return 1;
+			}
+
+			if(skip_mask && skip_mask[lsb])	{ //if there is a skip mask, skip this place and start over
+				lsb++;
+				goto start;
+			}
+		
+			result[lsb] = (result[lsb]+1)%base; //add one add limit this place to be base max
+			carry = result[lsb]==0; //if it returns 0 addition resulted a carry
+
+			lsb=lsb+(1 & result[lsb]==0); // if there was a carry increment the lsb counter for the next iteration
+
+	}while(carry && lsb < dimension); // while there is a carry redo loop
+
+	return carry; // if one the vector is overflown... use it to break a loop or something
+}
+
+
+
 int main(void){
 	//CPLX_SAMPLES* samples = lsfft_alloc_complex_buffer(16,CPLX_TYPE_INT); //get the sample buffer structure
 	
 	//get the sample buffer structure for multi dimension processing
 	//it allocates a 8 bin fft with 2 dimensions
 
-	CPLX_SAMPLES* samples_md = lsfft_alloc_complex_buffer_md(16,CPLX_TYPE_INT,3);
-
+	CPLX_SAMPLES* samples_md = lsfft_alloc_complex_buffer_md(16,CPLX_TYPE_INT,1);
 
 	FFT_CONTEXT* fft_context = lsfft_init(samples_md->base_length,CPLX_TYPE_INT,FFT_MODE_NORMAL|FFT_MODE_MD); //get the FFT context
 	//FFT_CONTEXT* ifft_context = lsfft_init(16,CPLX_TYPE_INT,FFT_MODE_INVERSE); //get the FFT context
 
 	uint32_t i;
-	for(i=0;i<samples_md->length;i++){ //fill the buffer note: it takes 4GiB of memory to fill this buffer...
+	for(i=0;i<samples_md->length;i++){
 		((uint16_t*)samples_md->re)[i] = i;
 		((uint16_t*)samples_md->im)[i] = i;
 	}
 	
-	CPLX_SAMPLES* buffer = samples_md;
-
-	uint32_t samples = buffer->length;
+	uint32_t memory_vector[1] = {0};
+	uint32_t mask_vector[1]   = {0};
+	uint32_t axis    = 2;
 	
-	uint32_t index;
-	
-	int16_t tmp_re,tmp_im,norm=1;
+	do{
 
-	uint32_t memory_from[buffer->dimension];
-	uint32_t memory_to[buffer->dimension];
-	//initialize vectors
-	memset(memory_from,0,sizeof(memory_from));
-	memset(memory_to,0,sizeof(memory_to));
-
-	uint32_t j;
-
-	uint16_t* re = (uint16_t*)buffer->re;
-	uint16_t* im = (uint16_t*)buffer->im;
-
-	uint32_t axis = 2;
-
-	uint32_t from_index;
-	uint32_t to_index;
-	
-	for(i=0;i<buffer->base_length;i++){
-		printf("%d ",i);
-	}
-	printf("\n");
-
-	for(i=0;i<buffer->base_length / 2;i++){
-		memory_from[axis] = i;
-		memory_to[axis] = fft_context->bit_rev_indices[i];
-
-		from_index = get_memory_index(memory_from,buffer->dimension_strides,buffer->dimension);	//compute the strided indices	
-		to_index   = get_memory_index(memory_to,buffer->dimension_strides,buffer->dimension); //compute the stridet indices of the target
-
-		if(to_index >= from_index){
-			tmp_re = re[from_index]; //simple exchange ...
-			tmp_im = im[from_index];
-			
-			re[from_index] = re[to_index]*norm;
-			im[from_index] = im[to_index]*norm;
-				
-			re[to_index] = tmp_re*norm;
-			im[to_index] = tmp_im*norm;
+		for(i=0;i<samples_md -> dimension;i++){
+			printf("%d ",memory_vector[i]);
 		}
+
+		printf("\n");
+	}while(!inc_vector(memory_vector,mask_vector,samples_md->base_length,samples_md->dimension));
+//	printf("axis %d\n",axis);
+	/*
+	bit_reverse_int_md(fft_context,samples_md,memory_vector,axis);
+	
+	for(i=0;i<samples_md->base_length;i++){ //fill the buffer note: it takes 4GiB of memory to fill this buffer...
+		memory_vector[axis] = i;
+		uint32_t index = get_memory_index(memory_vector,samples_md->dimension_strides,samples_md->dimension);
+		printf("%d ",((uint16_t*)samples_md->re)[index]);
 	}
+	printf("\n");*/
 
 	/*
 	//--FFT AND iFFT

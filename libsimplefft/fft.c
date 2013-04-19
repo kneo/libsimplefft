@@ -357,7 +357,7 @@ void bit_reverse_int(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 
 
 
-//TODO: 1. bit reversing using array strides!
+//------TODO: 1. bit reversing using array strides!------
 //TODO: 2. fft using array strides!
 //TODO: 3. Parallelizing multi dimensional FFTs
 
@@ -383,36 +383,52 @@ uint32_t get_memory_index(uint32_t* memory_vector, uint32_t* stride_array, uint3
 	uint32_t res = 0;
 
 	for(;i<dimension;i++){
+		//printf("stride %d\n",stride_array[i]);
 		res = res + memory_vector[i] * stride_array[i];
 	}
 
 	return res;
 }
 
-void bit_reverse_int_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
-		uint32_t samples = buffer->length;
-		
-		int i = 0;
-		uint32_t index;
-		
-		int16_t tmp_re,tmp_im;
+void bit_reverse_int_md(FFT_CONTEXT* fft_context, CPLX_SAMPLES* buffer, uint32_t* memory_vector, uint32_t axis){
+	uint32_t samples = buffer->length;
+	uint32_t index;
 
-		uint32_t count_vector[buffer->dimension];
+	int16_t tmp_re,tmp_im,norm=1;
 
+	uint32_t memory_from[buffer->dimension];
+	uint32_t memory_to[buffer->dimension];
+	//initialize vectors
 
-		//initialize vector
-		memset(count_vector,0,sizeof(count_vector));
-		uint32_t counter = 0;
+	memcpy(memory_from, memory_vector,sizeof(memory_from));
+	memcpy(memory_to, memory_vector,sizeof(memory_from));
 
+	uint16_t* re = (uint16_t*)buffer->re;
+	uint16_t* im = (uint16_t*)buffer->im;
 
-		for(;i<buffer->length;i++){
-			get_memory_vector(count_vector,buffer->dimension_strides,i,buffer->dimension);
+	uint32_t from_index;
+	uint32_t to_index;
+	uint32_t i;
+	
+	for(i=0;i<buffer->base_length / 2;i++){
+		memory_from[axis] = i;
+		memory_to[axis] = fft_context->bit_rev_indices[i];
+
+		from_index = get_memory_index(memory_from, buffer->dimension_strides, buffer->dimension);	//compute the strided indices	
+		to_index   = get_memory_index(memory_to,   buffer->dimension_strides, buffer->dimension);   //compute the stridet indices of the target
+
+		if(memory_to[axis] >= memory_from[axis]){
+			tmp_re = re[from_index]; //simple exchange ...
+			tmp_im = im[from_index];
 			
-			index = context->bit_rev_indices[i%buffer->base_length];
-		}	
+			re[from_index] = re[to_index]*norm;
+			im[from_index] = im[to_index]*norm;
+				
+			re[to_index] = tmp_re*norm;
+			im[to_index] = tmp_im*norm;
+		}
+	}
 }
-
-
 
 void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 	if(context && buffer){

@@ -151,7 +151,7 @@ CPLX_SAMPLES* lsfft_alloc_complex_buffer_md(uint32_t samples, uint8_t type, uint
 				res->type_size = sizeof(int8_t);
 			break;
 		}
-
+	
 		return res;
 	} return NULL;
 }
