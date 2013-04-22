@@ -110,6 +110,45 @@ int16_t im_mul_i(int16_t re1,int16_t im1, float re2,float im2);
 */
 uint32_t bit_reversal(uint32_t base,uint32_t num);
 
+/**Base n vector incrementation. 
+*@param result pointer to the vector to increment 
+*@param skip_mask pointer to the vector containing the skip mask (places to ignore). Might be NULL.
+*@param base the base of the number system the result vector is representing
+*@param dimension of the vector.
+*@return FLAG_OVERFLOW if operation overflows result then contains zeros only
+*/
+uint32_t inc_vector(uint32_t* result, uint32_t* skip_mask, uint32_t base, uint32_t dimension);
+
+/**Shifts all places in the vector by one place from the least significant place to the most significant one
+*@param vector to shift
+*@param dimension of the vector
+*@returns FLAG_OVERFLOW if most significant place dropps out of the vector
+*/
+uint32_t vector_lsh(uint32_t* vector, uint32_t dimension);
+
+/**Shifts all places in the vector by one place from the most significant place to the least significant one
+*@param vector to shift
+*@param dimension of the vector
+*@returns FLAG_CARRY if least significant place dropps out of the vector
+*/
+uint32_t vector_rsh(uint32_t* vector, uint32_t dimension);
+
+/** Compute the memory vector from the linear counter value
+*@param memory_vector to assign the the linear index to
+*@param stride_array stride array for dimension strides
+*@param value of the linear index to be assigned to the memory_vector
+*@param dimension of the memory_vector
+*/
+void get_memory_vector(uint32_t* memory_vector, uint32_t* stride_array, int32_t value, uint32_t dimension);
+
+/**Compute the index of the counter array within the linear memory block
+*@param memory_vector to calculate the linear index from
+*@param stride_array dimension stride array of the memory layout
+*@param dimension of the vector
+*@return the linear index of the memory cell in the memory layout represented by the memory vector
+*/
+uint32_t get_memory_index(uint32_t* memory_vector, uint32_t* stride_array, uint32_t dimension);
+
 /**print sample buffer to stdout for debugging purposes
 *@param samples samples to print
 */

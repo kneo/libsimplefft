@@ -361,34 +361,6 @@ void bit_reverse_int(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 //TODO: 2. fft using array strides!
 //TODO: 3. Parallelizing multi dimensional FFTs
 
-/** Compute the memory vector from the linear counter value
-*/
-void get_memory_vector(uint32_t* memory_vector, uint32_t* stride_array, int32_t value, uint32_t dimension){
-	int32_t i;
-	uint32_t frac = value; 
-	//printf("dim :%d\n",dimension);
-
-	for(i=dimension-1; i>-1; i--){
-		//printf("dimension :%d\n",i);
-		memory_vector[i] = frac / stride_array[i];
-		frac  %= stride_array[i];
-		//printf("frac: %d\n",frac);
-	}
-}
-
-/**Compute the index of the counter array within the linear memory block
-*/
-uint32_t get_memory_index(uint32_t* memory_vector, uint32_t* stride_array, uint32_t dimension){
-	uint32_t i = 0;
-	uint32_t res = 0;
-
-	for(;i<dimension;i++){
-		//printf("stride %d\n",stride_array[i]);
-		res = res + memory_vector[i] * stride_array[i];
-	}
-
-	return res;
-}
 
 void bit_reverse_int_md(FFT_CONTEXT* fft_context, CPLX_SAMPLES* buffer, uint32_t* memory_vector, uint32_t axis){
 	uint32_t samples = buffer->length;
@@ -429,6 +401,8 @@ void bit_reverse_int_md(FFT_CONTEXT* fft_context, CPLX_SAMPLES* buffer, uint32_t
 		}
 	}
 }
+
+
 
 void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 	if(context && buffer){

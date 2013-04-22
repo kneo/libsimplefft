@@ -98,6 +98,98 @@ uint32_t bit_reversal(uint32_t base,uint32_t num){
 	return 0;
 }
 
+//This function is an addition with carry, which can be provided with a skip mask
+//to tell 
+uint32_t inc_vector(uint32_t* result, uint32_t* skip_mask, uint32_t base, uint32_t dimension){
+	uint32_t lsb   = 0; //
+	uint32_t carry = 0;
+
+	do{
+		start:
+			if(lsb >= dimension){ //prevent overflow and possible buffer overrun
+				return 1;
+			}
+
+			if(skip_mask && skip_mask[lsb])	{ //if there is a skip mask, skip this place and start over
+				lsb++;
+				goto start;
+			}
+		
+			result[lsb] = (result[lsb]+1)%base; //add one add limit this place to be base max
+			carry = result[lsb]==0; //if it returns 0 addition resulted a carry
+
+			lsb=lsb+(1 & result[lsb]==0); // if there was a carry increment the lsb counter for the next iteration
+
+	}while(carry && lsb < dimension); // while there is a carry redo loop
+
+	return FLAG_OVERFLOW * carry; // if one the vector is overflown... use it to break a loop or something
+}
+
+
+uint32_t vector_lsh(uint32_t* vector, uint32_t dimension){
+	uint32_t i;
+	uint32_t flag=0;
+
+	if(dimension>0){
+		if(vector[dimension-1] != 0) flag = FLAG_OVERFLOW;
+		//printf("%d, flag: %d\n",vector[dimension-1],flag);
+
+
+		for(i = dimension-1; i > 0; i--){
+			//printf("%d\n",vector[i]);
+			vector[i] = vector[i - 1];
+		}
+		vector[0] = 0;
+	}
+
+	return flag;
+}
+
+uint32_t vector_rsh(uint32_t* vector, uint32_t dimension){
+	uint32_t i;
+	uint32_t flag=0;
+
+	if(dimension>0){
+		if(vector[0] != 0) flag = FLAG_CARRY;
+		printf("%d, flag: %d\n",vector[dimension-1],flag);
+
+
+		for(i = 0; i < dimension; i++){
+			printf("%d\n",vector[i]);
+			vector[i] = vector[i + 1];
+		}
+		vector[dimension-1] = 0;
+	}
+
+	return flag;
+}
+
+
+
+void get_memory_vector(uint32_t* memory_vector, uint32_t* stride_array, int32_t value, uint32_t dimension){
+	int32_t i;
+	uint32_t frac = value; 
+	//printf("dim :%d\n",dimension);
+
+	for(i=dimension-1; i>-1; i--){
+		//printf("dimension :%d\n",i);
+		memory_vector[i] = frac / stride_array[i];
+		frac  %= stride_array[i];
+		//printf("frac: %d\n",frac);
+	}
+}
+
+uint32_t get_memory_index(uint32_t* memory_vector, uint32_t* stride_array, uint32_t dimension){
+	uint32_t i = 0;
+	uint32_t res = 0;
+
+	for(;i<dimension;i++){
+		//printf("stride %d\n",stride_array[i]);
+		res = res + memory_vector[i] * stride_array[i];
+	}
+
+	return res;
+}
 
 void lsfft_printl_samples(CPLX_SAMPLES* samples){
 	if(samples){

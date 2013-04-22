@@ -23,6 +23,11 @@
 
 #include<time.h>
 
+#define FLAG_OVERFLOW (1)
+#define FLAG_CARRY    (2)
+#define FLAG_ZERO     (3)
+#define FLAG_MINUS    (4)
+
 struct CPLX_SAMPLES;
 
 /**Type holding a buffer of complex samples
