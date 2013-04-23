@@ -147,7 +147,7 @@ void fft_int_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32
 
 					pos_t = (butterfly * stride_t) % size_tw; //compute the index of the necessary twiddle factor
 					
-					//printf("\t\ttwiddle factor->%d -> %f + i * %f\n",pos_t,twiddle_re[pos_t],twiddle_im[pos_t]);
+					printf("\t\ttwiddle factor->%d -> %f + i * %f\n",pos_t,twiddle_re[pos_t],twiddle_im[pos_t]);
 					
 					tmp_re = re[pos_odd]; //temprorary storing the first sample as mentioned above
 					tmp_im = im[pos_odd];
@@ -242,9 +242,22 @@ int main(void){
 	}
 
 	uint32_t vector[2] = {4,4};
-
 	uint32_t pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	re[pos] = 10;
 
+	vector[0] = 5;
+	vector[1] = 5;
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	re[pos] = 10;
+
+	vector[0] = 4;
+	vector[1] = 5;
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	re[pos] = 10;
+
+	vector[0] = 5;
+	vector[1] = 4;
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
 	re[pos] = 10;
 
 	for(i=0;i<samples_md->length;i++){
