@@ -362,47 +362,6 @@ void bit_reverse_int(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 //TODO: 3. Parallelizing multi dimensional FFTs
 
 
-void bit_reverse_int_md(FFT_CONTEXT* fft_context, CPLX_SAMPLES* buffer, uint32_t* memory_vector, uint32_t axis){
-	uint32_t samples = buffer->length;
-	uint32_t index;
-
-	int16_t tmp_re,tmp_im,norm=1;
-
-	uint32_t memory_from[buffer->dimension];
-	uint32_t memory_to[buffer->dimension];
-	//initialize vectors
-
-	memcpy(memory_from, memory_vector,sizeof(memory_from));
-	memcpy(memory_to, memory_vector,sizeof(memory_from));
-
-	uint16_t* re = (uint16_t*)buffer->re;
-	uint16_t* im = (uint16_t*)buffer->im;
-
-	uint32_t from_index;
-	uint32_t to_index;
-	uint32_t i;
-	
-	for(i=0;i<buffer->base_length / 2;i++){
-		memory_from[axis] = i;
-		memory_to[axis] = fft_context->bit_rev_indices[i];
-
-		from_index = get_memory_index(memory_from, buffer->dimension_strides, buffer->dimension);	//compute the strided indices	
-		to_index   = get_memory_index(memory_to,   buffer->dimension_strides, buffer->dimension);   //compute the stridet indices of the target
-
-		if(memory_to[axis] >= memory_from[axis]){
-			tmp_re = re[from_index]; //simple exchange ...
-			tmp_im = im[from_index];
-			
-			re[from_index] = re[to_index]*norm;
-			im[from_index] = im[to_index]*norm;
-				
-			re[to_index] = tmp_re*norm;
-			im[to_index] = tmp_im*norm;
-		}
-	}
-}
-
-
 
 void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 	if(context && buffer){

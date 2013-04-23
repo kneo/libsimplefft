@@ -38,4 +38,4 @@ CPLX_SAMPLES* lsfft_alloc_complex_buffer_md(uint32_t samples, uint8_t type, uint
 */
 void lsfft_free_complex_buffer(CPLX_SAMPLES* buffer);
 
-#endif
+#endif		

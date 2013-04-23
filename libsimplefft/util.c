@@ -179,18 +179,6 @@ void get_memory_vector(uint32_t* memory_vector, uint32_t* stride_array, int32_t 
 	}
 }
 
-uint32_t get_memory_index(uint32_t* memory_vector, uint32_t* stride_array, uint32_t dimension){
-	uint32_t i = 0;
-	uint32_t res = 0;
-
-	for(;i<dimension;i++){
-		//printf("stride %d\n",stride_array[i]);
-		res = res + memory_vector[i] * stride_array[i];
-	}
-
-	return res;
-}
-
 void lsfft_printl_samples(CPLX_SAMPLES* samples){
 	if(samples){
 		uint32_t i = 0;
