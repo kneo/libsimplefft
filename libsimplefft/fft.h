@@ -34,7 +34,14 @@
 */
 void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer);
 
-
-
+/**Performes the Fast Fourier Transform using the assigned context and the samples structure
+*According to the inizialization of the FFT it performes either the inverse or the normal transform to fourier space
+*This is an in place process so be carefull with data not supposed to be processed
+*Mind that samples also may contain multi dimensional data. But this will only work if you constantly use the functions with _md suffix!
+*Also remind that all other functions become obsolete soon!
+*@param context fft_context structure
+*@param samples structure containing the data to be processed
+*/
+void perform_fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* samples);
 
 #endif

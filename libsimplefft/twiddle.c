@@ -33,7 +33,7 @@ void calculate_float(CPLX_SAMPLES* samples,uint8_t mode){
 	//distinguish between inverse and normal FFT
 	int8_t sign = mode==0 ? 1 : -1;
 	
-	int i=0;
+	uint32_t i=0;
 	for(;i<samples->length;i++){
 		float fak = (2*sign*PI*i)/N;
 		re[i] = cos(fak);
@@ -49,7 +49,7 @@ void calculate_double(CPLX_SAMPLES* samples,uint8_t mode){
 	
 	int8_t sign = mode==0?1:-1;
 	
-	int i=0;
+	uint32_t i=0;
 	for(;i<samples->length;i++){
 		double fak = (2*sign*PI*i)/N;
 		re[i] = cos(fak);

@@ -67,19 +67,19 @@ double im_mul_d(double re1,double im1, double re2,double im2){
 }
 
 int8_t re_mul_b(int8_t re1,int8_t im1, float re2,float im2){
-	return (int8_t) (((float)re1)*re2 - ((float)im1)*im2);
+	return (int8_t) roundf((((float)re1)*re2 - ((float)im1)*im2));
 }
 
 int8_t im_mul_b(int8_t re1,int8_t im1, float re2,float im2){
-	return (int8_t) (((float)re1)*im2 + ((float)im1)*re2);
+	return (int8_t) roundf((((float)re1)*im2 + ((float)im1)*re2));
 }
 
 int16_t re_mul_i(int16_t re1,int16_t im1, float re2,float im2){
-	return (int16_t) (((float)re1)*re2 - ((float)im1)*im2);
+	return (int16_t) roundf((((float)re1)*re2 - ((float)im1)*im2));
 }
 
 int16_t im_mul_i(int16_t re1,int16_t im1, float re2,float im2){
-	return (int16_t) (((float)re1)*im2 + ((float)im1)*re2);
+	return (int16_t) roundf((((float)re1)*im2 + ((float)im1)*re2));
 }
 
 uint32_t bit_reversal(uint32_t base,uint32_t num){
@@ -200,18 +200,31 @@ void get_memory_vector(uint32_t* memory_vector, uint32_t* stride_array, int32_t 
 void lsfft_printl_samples(CPLX_SAMPLES* samples){
 	if(samples){
 		uint32_t i = 0;
-		for(;i<samples->length;i++){
+
+		printf("\n");
+		for(;i<samples->length;i++){	
+			if(i>0 && (i % samples->base_length == 0)){
+				printf("\n");
+				if(i>0 && (i % (samples->base_length*samples->base_length) == 0)){
+					printf("\n");
+				}
+			}
+
 			switch(samples->type){
 				case CPLX_TYPE_SP:
-					printf("%f + %fi\n",((float*)samples->re)[i],((float*)samples->im)[i]);
+					printf("%f + %fi ",((float*)samples->re)[i],((float*)samples->im)[i]);
 				break;
 				case CPLX_TYPE_DP:
-					printf("%f + %fi\n",((double*)samples->re)[i],((double*)samples->im)[i]);
+					printf("%f + %fi ",((double*)samples->re)[i],((double*)samples->im)[i]);
 				break;
 				case CPLX_TYPE_INT:
-					printf("%d + %di\n",((int16_t*)samples->re)[i],((int16_t*)samples->im)[i]);
+					printf("%d + %di ",((int16_t*)samples->re)[i],((int16_t*)samples->im)[i]);
+				break;
+				case CPLX_TYPE_BYTE:
+					printf("%d + %di ",((int8_t*)samples->re)[i],((int8_t*)samples->im)[i]);
 				break;
 			}		
 		}
+		printf("\n");
 	}
 }

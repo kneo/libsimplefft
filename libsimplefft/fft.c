@@ -355,10 +355,52 @@ void bit_reverse_int(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 	}
 }
 
+void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
+	if(context && buffer){
+		//printf("context type:%d size:%d mode:%d \n", context->type,context->samples,context->mode);
+		if(context->mode&2 != 0){
+			//Multidimensional entrypoint.
+		} else {
+			if(context->samples == buffer->length){
+				switch(context->type){
+					case CPLX_TYPE_SP:
+						//printf("performing fft with %d samples single precision\n",context->samples);
+						//printf("clocks %d\n",(int) clock());
+						//buffer->exec_time = clock();
+						fft_float(context,buffer);
+						bit_reverse_float(context,buffer);
+						//buffer->exec_time = clock() - buffer->exec_time;
+					break;
+				
+					case CPLX_TYPE_DP:
+						//printf("performing fft with %d samples double precision\n",context->samples);
+						//printf("clocks %d\n",(int) clock());
+						//buffer->exec_time = clock();
+						fft_double(context,buffer);
+						bit_reverse_double(context,buffer);
+						//buffer->exec_time = clock() - buffer->exec_time;
+					break;
+				
+					case CPLX_TYPE_INT:
+						//printf("performing fft with %d samples double precision\n",context->samples);
+						//printf("clocks %d\n",(int) clock());
+						//buffer->exec_time = clock();
+						fft_int(context,buffer);
+						bit_reverse_int(context,buffer);
+						//buffer->exec_time = clock() - buffer->exec_time;
+					break;
 
+					case CPLX_TYPE_BYTE:
+						
+					break;
+				}
+			}		
+		}
+	}
+}
 
 //------TODO: 1. bit reversing using array strides!------
-//TODO: 2. fft using array strides!
+//------TODO: 2. fft using array strides!------
 //TODO: 3. Parallelizing multi dimensional FFTs
 
 void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory_vector, uint32_t axis){
@@ -366,7 +408,8 @@ void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory
 	uint32_t index;
 	uint8_t fft_type=context->type; //branch prediction optization
 
-	int16_t tmp_re,tmp_im,norm=1;
+	int16_t tmp_re,tmp_im;
+	float norm=(context->mode == FFT_MODE_INVERSE) ? (1.0/ (float) buffer->base_length) : 1.0;
 
 	uint32_t memory_from[buffer->dimension];
 	uint32_t memory_to[buffer->dimension];
@@ -375,11 +418,11 @@ void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory
 	memcpy(memory_from, memory_vector,sizeof(memory_from));
 	memcpy(memory_to, memory_vector,sizeof(memory_to));
 
-	uint8_t* re_8t = (uint8_t*)buffer->re;
-	uint8_t* im_8t = (uint8_t*)buffer->im;
+	int8_t* re_8t = (int8_t*)buffer->re;
+	int8_t* im_8t = (int8_t*)buffer->im;
 
-	uint16_t* re_16t = (uint16_t*)buffer->re;
-	uint16_t* im_16t = (uint16_t*)buffer->im;
+	int16_t* re_16t = (int16_t*)buffer->re;
+	int16_t* im_16t = (int16_t*)buffer->im;
 
 	float* re_ft = (float*)buffer->re;
 	float* im_ft = (float*)buffer->im;
@@ -463,7 +506,7 @@ void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory
 
 void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* memory_vector){
 //	printf("fft_md called!\n");
-	if(context && buffer && (context->mode & FFT_MODE_MD)!=0){
+	if(context && buffer){
 		uint8_t fft_type = context->type; //load this here for optimal processor branch prediction
 
 		uint32_t stages      = context->stages; //stages of the fft
@@ -493,6 +536,7 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 		int16_t tmp_re_16t,tmp_im_16t,diff_re_16t,diff_im_16t;
 
 		float tmp_re_ft,tmp_im_ft,diff_re_ft,diff_im_ft;
+
 		double tmp_re_dt,tmp_im_dt,diff_re_dt,diff_im_dt;
 		
 		//RADIX 2 DIF FFT
@@ -562,8 +606,6 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 
 					pos_t = (butterfly * stride_t) % size_tw; //compute the index of the necessary twiddle factor
 					
-					//printf("\t\ttwiddle factor->%d -> %f + i * %f\n",pos_t,twiddle_re[pos_t],twiddle_im[pos_t]);
-					
 					switch(fft_type){ // compute the type independent fft
 						case CPLX_TYPE_BYTE:
 							tmp_re_8t = re_8t[pos_odd];
@@ -577,6 +619,9 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 
 							re_8t[pos_even] = re_mul_b(diff_re_8t, diff_im_8t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]); //butterfly wing 2
 							im_8t[pos_even] = im_mul_b(diff_re_8t, diff_im_8t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]);
+							//printf("\t\ttwiddle factor->%d -> %f + i * %f\n",pos_t,twiddle_re_ft[pos_t],twiddle_im_ft[pos_t]);
+							//printf("\t\tresult odd  -> %d + i * %d\n",re_8t[pos_odd],im_8t[pos_odd]);
+							//printf("\t\tresult even -> %d + i * %d\n",re_8t[pos_even],im_8t[pos_even]);
 						break;
 
 						case CPLX_TYPE_INT:
@@ -603,8 +648,8 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 							diff_re_ft = tmp_re_ft - re_ft[pos_even];
 							diff_im_ft = tmp_im_ft - im_ft[pos_even];
 
-							re_ft[pos_even] = re_mul_i(diff_re_ft, diff_im_ft, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]); //butterfly wing 2
-							im_ft[pos_even] = im_mul_i(diff_re_ft, diff_im_ft, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]);
+							re_ft[pos_even] = re_mul_f(diff_re_ft, diff_im_ft, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]); //butterfly wing 2
+							im_ft[pos_even] = im_mul_f(diff_re_ft, diff_im_ft, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]);
 						break;
 
 						case CPLX_TYPE_DP:
@@ -617,8 +662,8 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 							diff_re_dt = tmp_re_dt - re_dt[pos_even];
 							diff_im_dt = tmp_im_dt - im_dt[pos_even];
 
-							re_dt[pos_even] = re_mul_i(diff_re_dt, diff_im_dt, twiddle_re_dt[pos_t], twiddle_im_dt[pos_t]); //butterfly wing 2
-							im_dt[pos_even] = im_mul_i(diff_re_dt, diff_im_dt, twiddle_re_dt[pos_t], twiddle_im_dt[pos_t]);
+							re_dt[pos_even] = re_mul_d(diff_re_dt, diff_im_dt, twiddle_re_dt[pos_t], twiddle_im_dt[pos_t]); //butterfly wing 2
+							im_dt[pos_even] = im_mul_d(diff_re_dt, diff_im_dt, twiddle_re_dt[pos_t], twiddle_im_dt[pos_t]);
 						break;
 					}
 				}
@@ -634,68 +679,30 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 
 void perform_fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* samples){
 	//printf("perform_fft_md called! context %x  samples %x\n",context,samples);
-	if(context && samples && (context->mode & FFT_MODE_MD)!=0){
-		uint32_t memory_vector[samples->dimension];
-		uint32_t mask_vector[samples->dimension];
+	if(context && samples){
+		uint32_t memory_vector[samples->dimension];//counter for iterations
+		uint32_t mask_vector[samples->dimension]; //axis mask preventing the inc function to count a particular axis (the one the FFT is applied to).
 		uint32_t axis=0;
 
 		memset(memory_vector,0,sizeof(memory_vector));
-		memset(mask_vector,0,sizeof(mask_vector));
+		memset(mask_vector,  0,sizeof(mask_vector));
 		mask_vector[0] = 1;
 		
 		do{//iterate over all axis
 			do{//for each axis iterate over all none variable axis
 				memory_vector[axis]=0;
-
 				fft_md(context,samples,axis,memory_vector);
+				//printf("\n\n");
 				bit_reverse_md(context, samples, memory_vector, axis);
+			}while(!inc_vector(memory_vector,mask_vector,samples->base_length,samples->dimension));//increment all the axis not masked
+			//it breaks when the incrementation causes a overflow.
+			axis++; // increment the ayis for the fft and bit reverse functions
 
-			}while(!inc_vector(memory_vector,mask_vector,samples->base_length,samples->dimension));
-			axis++;
-		}while(!vector_lsh(mask_vector,samples->dimension));	
+			//lsfft_printl_samples(samples);
+
+		}while(!vector_lsh(mask_vector,samples->dimension));//left shift the mask vector to iterate through the next axis
+		//the loop breaks when the mask vector overflows	
 	}
 }
 
-void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
-	if(context && buffer){
-		//printf("context type:%d size:%d mode:%d \n", context->type,context->samples,context->mode);
-		if(context->mode&2 != 0){
-			//Multidimensional entrypoint.
-		} else {
-			if(context->samples == buffer->length){
-				switch(context->type){
-					case CPLX_TYPE_SP:
-						//printf("performing fft with %d samples single precision\n",context->samples);
-						//printf("clocks %d\n",(int) clock());
-						//buffer->exec_time = clock();
-						fft_float(context,buffer);
-						bit_reverse_float(context,buffer);
-						//buffer->exec_time = clock() - buffer->exec_time;
-					break;
-				
-					case CPLX_TYPE_DP:
-						//printf("performing fft with %d samples double precision\n",context->samples);
-						//printf("clocks %d\n",(int) clock());
-						//buffer->exec_time = clock();
-						fft_double(context,buffer);
-						bit_reverse_double(context,buffer);
-						//buffer->exec_time = clock() - buffer->exec_time;
-					break;
-				
-					case CPLX_TYPE_INT:
-						//printf("performing fft with %d samples double precision\n",context->samples);
-						//printf("clocks %d\n",(int) clock());
-						//buffer->exec_time = clock();
-						fft_int(context,buffer);
-						bit_reverse_int(context,buffer);
-						//buffer->exec_time = clock() - buffer->exec_time;
-					break;
 
-					case CPLX_TYPE_BYTE:
-						
-					break;
-				}
-			}		
-		}
-	}
-}
