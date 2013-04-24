@@ -11,32 +11,32 @@ int main(void){
 	//get the sample buffer structure for multi dimension processing
 	//it allocates a 8 bin fft with 2 dimensions
 
-	CPLX_SAMPLES* samples_md = lsfft_alloc_complex_buffer_md(8,CPLX_TYPE_INT,1);
-
-	FFT_CONTEXT* fft_context = lsfft_init(samples_md->base_length,CPLX_TYPE_INT,FFT_MODE_NORMAL|FFT_MODE_MD); //get the FFT context
+	CPLX_SAMPLES* samples_md = lsfft_alloc_complex_buffer_md(8,CPLX_TYPE_DP,3);
+	printf("getting context ...\n");
+	FFT_CONTEXT* fft_context = lsfft_init(samples_md->base_length,samples_md->type,FFT_MODE_NORMAL|FFT_MODE_MD); //get the FFT context
 	//FFT_CONTEXT* ifft_context = lsfft_init(16,CPLX_TYPE_INT,FFT_MODE_INVERSE); //get the FFT context
 
 	uint32_t i,j;
 	printf("loading samples\n");
-	int16_t* re =(int16_t*)samples_md->re;
-	int16_t* im =(int16_t*)samples_md->im;
+	double* re =(double*)samples_md->re;
+	double* im =(double*)samples_md->im;
 
 	for(i=0;i<samples_md->length;i++){
 		re[i] = 0;
 		im[i] = 0;
 	}
 
-	uint32_t vector[1] = {4};//,4,4};
+	uint32_t vector[3] = {4,4,4};
 	uint32_t pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
 	re[pos] = 10;
 
 	vector[0] = 5;
-	//vector[1] = 5;
-	//vector[1] = 5;
+	vector[1] = 5;
+	vector[1] = 5;
 	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
 	re[pos] = 10;
 
-/*
+
 	vector[0] = 4;
 	vector[1] = 5;
 	vector[1] = 5;
@@ -47,26 +47,36 @@ int main(void){
 	vector[1] = 4;
 	vector[1] = 5;
 	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
-	re[pos] = 10;*/
+	re[pos] = 10;
 
+	/*
 	for(i=0;i<samples_md->length;i++){
 		if(i>0 && (i % samples_md->base_length == 0)){
 			printf("\n");
+			if(i>0 && (i % (samples_md->base_length*samples_md->base_length) == 0)){
+				printf("\n");
+			}
 		}
 		printf("%d+i*%d ",re[i],im[i]);
 	}
-	printf("\n");
+	printf("\n");*/
 
 	printf("performing MD FFT\n");
 	perform_fft_md(fft_context,samples_md);
 	
  	printf("Outputting Result\n");
-
+	
 	for(i=0;i<samples_md->length;i++){
 		if(i>0 && (i % samples_md->base_length == 0)){
 			printf("\n");
+			if(i>0 && (i % (samples_md->base_length*samples_md->base_length) == 0)){
+				printf("\n");
+			}
 		}
-		printf("%d+i*%d ",re[i],im[i]);
+
+		printf("%.3f+i*%.3f ",re[i],im[i]);
+
+
 	}
 	printf("\n");
 

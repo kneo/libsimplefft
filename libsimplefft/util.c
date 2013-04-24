@@ -184,51 +184,6 @@ uint32_t get_memory_index(uint32_t* memory_vector, uint32_t* stride_array, uint3
 	return res;
 }
 
-void perform_fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* samples){
-	if(context && samples && (context->mode & FFT_MODE_MD)){
-		uint32_t memory_vector[samples->dimension];
-		uint32_t mask_vector[samples->dimension];
-		uint32_t axis=0;
-		uint32_t i;
-
-		memset(memory_vector,0,sizeof(memory_vector));
-		memset(mask_vector,0,sizeof(mask_vector));
-		mask_vector[0] = 1;
-
-		int16_t* re =(uint16_t*)samples->re;
-		int16_t* im =(uint16_t*)samples->im;
-		
-		do{//iterate over all axis
-			do{//for each axis iterate over all none variable axis
-				memory_vector[axis]=0;
-
-				//printf("performing FFT of ");
-
-				/*printf("Address [");
-				for(i=0;i<samples->dimension;i++){
-					printf("%d ",memory_vector[i]);
-				}
-				printf("]\n");*/
-
-				fft_md(context,samples,axis,memory_vector);
-				//printf("reversing indices of axis %d\n",axis);
-				bit_reverse_md(context, samples, memory_vector, axis);
-
-			}while(!inc_vector(memory_vector,mask_vector,samples->base_length,samples->dimension));
-			axis++;
-
-/*			for(i=0;i<samples->length;i++){
-				if(i>0 && (i % samples->base_length == 0)){
-					printf("\n");
-				}
-				printf("%d+i*%d ",re[i],im[i]);
-			}
-			printf("\n");*/
-
-		}while(!vector_lsh(mask_vector,samples->dimension));	
-	}
-}
-
 void get_memory_vector(uint32_t* memory_vector, uint32_t* stride_array, int32_t value, uint32_t dimension){
 	int32_t i;
 	uint32_t frac = value; 

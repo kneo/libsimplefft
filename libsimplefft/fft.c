@@ -459,7 +459,8 @@ void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory
 }
 
 void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* memory_vector){
-	if(context && buffer && (context->mode & FFT_MODE_MD)){
+//	printf("fft_md called!\n");
+	if(context && buffer && (context->mode & FFT_MODE_MD)!=0){
 		uint32_t stages      = context->stages; //stages of the fft
 		uint32_t dfts        = 1;				//each stage consists of several sub dtfs this is its initial value
 		uint32_t butterflies = context->samples >> 1; //a butterfly is the elemental computation of a fft. each
@@ -488,9 +489,6 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 
 		float tmp_re_ft,tmp_im_ft,diff_re_ft,diff_im_ft;
 		double tmp_re_dt,tmp_im_dt,diff_re_dt,diff_im_dt;
-
-		int16_t* re = (int16_t*)buffer->re; //get a reference of the imaginary and real parts of the input samples
-		int16_t* im = (int16_t*)buffer->im;
 		
 		//RADIX 2 DIF FFT
 		
@@ -514,21 +512,6 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 
 		memcpy(odd_vector,  memory_vector, sizeof(odd_vector));
 		memcpy(even_vector, memory_vector, sizeof(even_vector));
-
-		/*
-		int32_t i;
-		printf("odd [");
-		for(i=0;i<buffer->dimension;i++){
-			printf("%d ",odd_vector[i]);
-		}
-		printf("]\n");
-
-		printf("even [");
-		for(i=0;i<buffer->dimension;i++){
-			printf("%d ",even_vector[i]);
-		}
-		printf("]\n");
-		*/	
 
 		re_8t = (int8_t*)buffer->re;
 		im_8t = (int8_t*)buffer->im;
@@ -578,8 +561,6 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 					
 					switch(context->type){ // compute the type independent fft
 						case CPLX_TYPE_BYTE:
-
-
 							tmp_re_8t = re_8t[pos_odd];
 							tmp_im_8t = im_8t[pos_odd];
 
@@ -622,8 +603,6 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 						break;
 
 						case CPLX_TYPE_DP:
-
-
 							tmp_re_dt = re_dt[pos_odd];
 							tmp_im_dt = im_dt[pos_odd];
 
@@ -645,6 +624,30 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 			dft_size    >>= 1;
 			stride_t    <<= 1;
 		}
+	}
+}
+
+void perform_fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* samples){
+	//printf("perform_fft_md called! context %x  samples %x\n",context,samples);
+	if(context && samples && (context->mode & FFT_MODE_MD)!=0){
+		uint32_t memory_vector[samples->dimension];
+		uint32_t mask_vector[samples->dimension];
+		uint32_t axis=0;
+
+		memset(memory_vector,0,sizeof(memory_vector));
+		memset(mask_vector,0,sizeof(mask_vector));
+		mask_vector[0] = 1;
+		
+		do{//iterate over all axis
+			do{//for each axis iterate over all none variable axis
+				memory_vector[axis]=0;
+
+				fft_md(context,samples,axis,memory_vector);
+				bit_reverse_md(context, samples, memory_vector, axis);
+
+			}while(!inc_vector(memory_vector,mask_vector,samples->base_length,samples->dimension));
+			axis++;
+		}while(!vector_lsh(mask_vector,samples->dimension));	
 	}
 }
 

@@ -73,13 +73,14 @@ CPLX_SAMPLES* compute_twiddles(uint32_t samples,uint8_t type, uint8_t mode){
 	
 	CPLX_SAMPLES* res;
 	//distinguish between integer and floating point fft, since integer unity roots will cause a lot of zeros.
-	if(type == CPLX_TYPE_INT){
+	if(type == CPLX_TYPE_INT || type == CPLX_TYPE_BYTE){
 		res = lsfft_alloc_complex_buffer(samp,CPLX_TYPE_SP);		
 	} else {
 		res = lsfft_alloc_complex_buffer(samp,type);
 	}
 	
 	switch(type){
+		case CPLX_TYPE_BYTE:
 		case CPLX_TYPE_INT:
 		case CPLX_TYPE_SP:
 			calculate_float(res,mode);

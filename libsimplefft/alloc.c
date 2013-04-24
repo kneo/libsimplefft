@@ -86,7 +86,7 @@ void lsfft_free_complex_buffer(CPLX_SAMPLES* buffer){
 
 CPLX_SAMPLES* lsfft_alloc_complex_buffer_md(uint32_t samples, uint8_t type, uint32_t dimensions) {
 
-	if(type>-1 && type<3 && dimensions>0){
+	if(type>-1 && type<4 && dimensions>0){
 		uint32_t samp;
 		uint32_t i;
 		/*printf("allocating multi dimensional complex buffer\n");*/
@@ -104,7 +104,7 @@ CPLX_SAMPLES* lsfft_alloc_complex_buffer_md(uint32_t samples, uint8_t type, uint
 		//allocate the basic complex sample buffer structure
 		CPLX_SAMPLES* res = alloc_samples_struct();
 
-		res->type   = type;
+		res->type = type;
 
 		//assign the base length of the FFT
 		res->base_length = samples;
