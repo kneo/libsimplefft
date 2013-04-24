@@ -364,6 +364,7 @@ void bit_reverse_int(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory_vector, uint32_t axis){
 	uint32_t samples = buffer->length;
 	uint32_t index;
+	uint8_t fft_type=context->type; //branch prediction optization
 
 	int16_t tmp_re,tmp_im,norm=1;
 
@@ -395,6 +396,8 @@ void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory
 	uint32_t from_index;
 	uint32_t to_index;
 	uint32_t i;
+
+
 	
 	for(i=0;i<buffer->base_length / 2;i++){
 		//printf("i:%d\n",i);
@@ -408,7 +411,7 @@ void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory
 
 		//printf("from %d -> %d to %d -> %d\n",memory_from[axis],from_index,memory_to[axis],to_index);
 		if(memory_to[axis] >= memory_from[axis]){
-			switch(context->type){
+			switch(fft_type){
 				case CPLX_TYPE_BYTE:
 					tmp_re_8t = re_8t[from_index]; //simple exchange ...
 					tmp_im_8t = im_8t[from_index];
@@ -461,6 +464,8 @@ void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory
 void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* memory_vector){
 //	printf("fft_md called!\n");
 	if(context && buffer && (context->mode & FFT_MODE_MD)!=0){
+		uint8_t fft_type = context->type; //load this here for optimal processor branch prediction
+
 		uint32_t stages      = context->stages; //stages of the fft
 		uint32_t dfts        = 1;				//each stage consists of several sub dtfs this is its initial value
 		uint32_t butterflies = context->samples >> 1; //a butterfly is the elemental computation of a fft. each
@@ -559,7 +564,7 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 					
 					//printf("\t\ttwiddle factor->%d -> %f + i * %f\n",pos_t,twiddle_re[pos_t],twiddle_im[pos_t]);
 					
-					switch(context->type){ // compute the type independent fft
+					switch(fft_type){ // compute the type independent fft
 						case CPLX_TYPE_BYTE:
 							tmp_re_8t = re_8t[pos_odd];
 							tmp_im_8t = im_8t[pos_odd];
