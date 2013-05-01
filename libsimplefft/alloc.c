@@ -86,7 +86,7 @@ void lsfft_free_complex_buffer(CPLX_SAMPLES* buffer){
 
 CPLX_SAMPLES* lsfft_alloc_complex_buffer_md(uint32_t samples, uint8_t type, uint32_t dimensions) {
 
-	if(type>-1 && type<4 && dimensions>0){
+	if(type>-1 && type<5 && dimensions>0){
 		uint32_t samp;
 		uint32_t i;
 		/*printf("allocating multi dimensional complex buffer\n");*/
@@ -143,6 +143,12 @@ CPLX_SAMPLES* lsfft_alloc_complex_buffer_md(uint32_t samples, uint8_t type, uint
 				res->re = (void*) calloc(res->length,sizeof(int16_t));
 				res->im = (void*) calloc(res->length,sizeof(int16_t));
 				res->type_size = sizeof(int16_t);
+			break;
+
+			case CPLX_TYPE_INT32://integer FFT
+				res->re = (void*) calloc(res->length,sizeof(int32_t));
+				res->im = (void*) calloc(res->length,sizeof(int32_t));
+				res->type_size = sizeof(int32_t);
 			break;
 
 			case CPLX_TYPE_BYTE://integer FFT

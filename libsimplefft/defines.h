@@ -68,17 +68,21 @@ typedef struct CPLX_SAMPLES{
 
 /**marker for single precision fft
 */
-#define CPLX_TYPE_SP  (0)
+#define CPLX_TYPE_SP    (0)
 /**marker for double precision fft
 */
-#define CPLX_TYPE_DP  (1)
-/**marker for integer based fft
+#define CPLX_TYPE_DP    (1)
+/**marker for 16-Bit integer based fft
 */
-#define CPLX_TYPE_INT (2)
+#define CPLX_TYPE_INT   (2)
 
-/**marker for 8-Bit sample fft
+/**marker for 8-Bit integer sample fft
 */
-#define CPLX_TYPE_BYTE (3)
+#define CPLX_TYPE_BYTE  (3)
+
+/**marker for 32-Bit integer based fft
+*/
+#define CPLX_TYPE_INT32 (4)
 
 /**Holds data required to perform a FFT.
 */

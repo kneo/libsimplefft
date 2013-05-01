@@ -103,9 +103,12 @@ public class FFTProcessor{
 		
 		System.out.println("handle retrieved : "+handle+" inverse : "+ihandle+" convolution :"+conhandle);
 
-		for(int i = 0;i<size;i++){
-			re[i] = (short)(i);
-		}
+		//for(int i = 0;i<size;i++){
+		//	re[i] = (short)(i);
+		//}
+
+        re[3] = 10;
+        re[4] = 10;
 		
 		long time = System.currentTimeMillis();
 		performFFT(handle,re,im);

@@ -31,7 +31,7 @@ void calculate_float(CPLX_SAMPLES* samples,uint8_t mode){
 	uint32_t N = samples->length << 1;
 	
 	//distinguish between inverse and normal FFT
-	int8_t sign = mode==0 ? 1 : -1;
+	int8_t sign = mode==0 ? -1 : 1;
 	
 	uint32_t i=0;
 	for(;i<samples->length;i++){
@@ -73,7 +73,7 @@ CPLX_SAMPLES* compute_twiddles(uint32_t samples,uint8_t type, uint8_t mode){
 	
 	CPLX_SAMPLES* res;
 	//distinguish between integer and floating point fft, since integer unity roots will cause a lot of zeros.
-	if(type == CPLX_TYPE_INT || type == CPLX_TYPE_BYTE){
+	if(type == CPLX_TYPE_INT || type == CPLX_TYPE_BYTE || type == CPLX_TYPE_INT32){
 		res = lsfft_alloc_complex_buffer(samp,CPLX_TYPE_SP);		
 	} else {
 		res = lsfft_alloc_complex_buffer(samp,type);
@@ -82,6 +82,7 @@ CPLX_SAMPLES* compute_twiddles(uint32_t samples,uint8_t type, uint8_t mode){
 	switch(type){
 		case CPLX_TYPE_BYTE:
 		case CPLX_TYPE_INT:
+		case CPLX_TYPE_INT32:
 		case CPLX_TYPE_SP:
 			calculate_float(res,mode);
 		break;

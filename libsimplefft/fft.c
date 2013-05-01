@@ -424,6 +424,9 @@ void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory
 	int16_t* re_16t = (int16_t*)buffer->re;
 	int16_t* im_16t = (int16_t*)buffer->im;
 
+	int32_t* re_32t = (int32_t*)buffer->re;
+	int32_t* im_32t = (int32_t*)buffer->im;
+
 	float* re_ft = (float*)buffer->re;
 	float* im_ft = (float*)buffer->im;
 
@@ -432,6 +435,7 @@ void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory
 
 	int8_t tmp_re_8t,tmp_im_8t;
 	int16_t tmp_re_16t,tmp_im_16t;
+	int32_t tmp_re_32t,tmp_im_32t;
 
 	float tmp_re_ft,tmp_im_ft;
 	double tmp_re_dt,tmp_im_dt;
@@ -442,7 +446,7 @@ void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory
 
 
 	
-	for(i=0;i<buffer->base_length / 2;i++){
+	for(i=0;i<buffer->base_length;i++){
 		//printf("i:%d\n",i);
 		memory_from[axis] = i;
 		memory_to[axis]   = context->bit_rev_indices[i];
@@ -477,6 +481,17 @@ void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory
 					im_16t[to_index] = tmp_im_16t*norm;
 				break;
 
+				case CPLX_TYPE_INT32:
+					tmp_re_32t = re_32t[from_index]; //simple exchange ...
+					tmp_im_32t = im_32t[from_index];
+			
+					re_32t[from_index] = re_32t[to_index]*norm;
+					im_32t[from_index] = im_32t[to_index]*norm;
+				
+					re_32t[to_index] = tmp_re_32t*norm;
+					im_32t[to_index] = tmp_im_32t*norm;
+				break;
+
 				case CPLX_TYPE_SP:
 					tmp_re_ft = re_ft[from_index]; //simple exchange ...
 					tmp_im_ft = im_ft[from_index];
@@ -499,7 +514,6 @@ void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory
 					im_dt[to_index] = tmp_im_dt*norm;
 				break;
 			}
-
 		}
 	}
 }
@@ -526,6 +540,9 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 		int16_t* re_16t;
 		int16_t* im_16t;
 
+		int32_t* re_32t;
+		int32_t* im_32t;
+
 		float *re_ft, *twiddle_re_ft;
 		float *im_ft, *twiddle_im_ft;
 
@@ -534,6 +551,7 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 
 		int8_t tmp_re_8t,tmp_im_8t,diff_re_8t,diff_im_8t;
 		int16_t tmp_re_16t,tmp_im_16t,diff_re_16t,diff_im_16t;
+		int32_t tmp_re_32t,tmp_im_32t,diff_re_32t,diff_im_32t;
 
 		float tmp_re_ft,tmp_im_ft,diff_re_ft,diff_im_ft;
 
@@ -567,6 +585,9 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 
 		re_16t = (int16_t*)buffer->re;
 		im_16t = (int16_t*)buffer->im;
+
+		re_32t = (int32_t*)buffer->re;
+		im_32t = (int32_t*)buffer->im;
 
 		re_ft = (float*)buffer->re;
 		im_ft = (float*)buffer->im;
@@ -608,6 +629,8 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 					
 					switch(fft_type){ // compute the type independent fft
 						case CPLX_TYPE_BYTE:
+							//printf("\t\tinput odd  -> %d + i * %d\n",re_8t[pos_odd],im_8t[pos_odd]);
+							//printf("\t\tinput even -> %d + i * %d\n\n",re_8t[pos_even],im_8t[pos_even]);
 							tmp_re_8t = re_8t[pos_odd];
 							tmp_im_8t = im_8t[pos_odd];
 
@@ -621,7 +644,7 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 							im_8t[pos_even] = im_mul_b(diff_re_8t, diff_im_8t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]);
 							//printf("\t\ttwiddle factor->%d -> %f + i * %f\n",pos_t,twiddle_re_ft[pos_t],twiddle_im_ft[pos_t]);
 							//printf("\t\tresult odd  -> %d + i * %d\n",re_8t[pos_odd],im_8t[pos_odd]);
-							//printf("\t\tresult even -> %d + i * %d\n",re_8t[pos_even],im_8t[pos_even]);
+							//printf("\t\tresult even -> %d + i * %d\n\n",re_8t[pos_even],im_8t[pos_even]);
 						break;
 
 						case CPLX_TYPE_INT:
@@ -636,6 +659,20 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 
 							re_16t[pos_even] = re_mul_i(diff_re_16t, diff_im_16t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]); //butterfly wing 2
 							im_16t[pos_even] = im_mul_i(diff_re_16t, diff_im_16t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]);
+						break;
+
+						case CPLX_TYPE_INT32:
+							tmp_re_32t = re_32t[pos_odd];
+							tmp_im_32t = im_32t[pos_odd];
+
+							re_32t[pos_odd]  = tmp_re_32t + re_32t[pos_even]; //butterfly wing 1
+							im_32t[pos_odd]  = tmp_im_32t + im_32t[pos_even];
+
+							diff_re_32t = tmp_re_32t - re_32t[pos_even];
+							diff_im_32t = tmp_im_32t - im_32t[pos_even];
+
+							re_32t[pos_even] = re_mul_i32(diff_re_32t, diff_im_32t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]); //butterfly wing 2
+							im_32t[pos_even] = im_mul_i32(diff_re_32t, diff_im_32t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]);
 						break;
 
 						case CPLX_TYPE_SP:
@@ -696,7 +733,7 @@ void perform_fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* samples){
 				bit_reverse_md(context, samples, memory_vector, axis);
 			}while(!inc_vector(memory_vector,mask_vector,samples->base_length,samples->dimension));//increment all the axis not masked
 			//it breaks when the incrementation causes a overflow.
-			axis++; // increment the ayis for the fft and bit reverse functions
+			axis++; // increment the axis for the fft and bit reverse functions
 
 			//lsfft_printl_samples(samples);
 

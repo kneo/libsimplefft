@@ -57,7 +57,7 @@ FFT_CONTEXT* lsfft_init(uint32_t samples, uint8_t type, uint8_t mode){
 		res_context->bit_rev_indices[i] = bit_reversal(samp,i);
 	}
 	
-	if(type>=0 && type<4) { //determine the data type of the FFT
+	if(type>=0 && type<5) { //determine the data type of the FFT
 		res_context->type = type;
 		res_context->twiddle_factors = compute_twiddles(samp,type,mode);
 		

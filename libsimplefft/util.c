@@ -82,6 +82,14 @@ int16_t im_mul_i(int16_t re1,int16_t im1, float re2,float im2){
 	return (int16_t) roundf((((float)re1)*im2 + ((float)im1)*re2));
 }
 
+int32_t re_mul_i32(int32_t re1,int32_t im1, float re2,float im2){
+	return (int32_t) roundf((((float)re1)*re2 - ((float)im1)*im2));
+}
+
+int32_t im_mul_i32(int32_t re1,int32_t im1, float re2,float im2){
+	return (int32_t) roundf((((float)re1)*im2 + ((float)im1)*re2));
+}
+
 uint32_t bit_reversal(uint32_t base,uint32_t num){
 	uint32_t res = 0;
 	
@@ -212,13 +220,16 @@ void lsfft_printl_samples(CPLX_SAMPLES* samples){
 
 			switch(samples->type){
 				case CPLX_TYPE_SP:
-					printf("%f + %fi ",((float*)samples->re)[i],((float*)samples->im)[i]);
+					printf("%.2f + %.2fi ",((float*)samples->re)[i],((float*)samples->im)[i]);
 				break;
 				case CPLX_TYPE_DP:
-					printf("%f + %fi ",((double*)samples->re)[i],((double*)samples->im)[i]);
+					printf("%.2f + %.2fi ",((double*)samples->re)[i],((double*)samples->im)[i]);
 				break;
 				case CPLX_TYPE_INT:
 					printf("%d + %di ",((int16_t*)samples->re)[i],((int16_t*)samples->im)[i]);
+				break;
+				case CPLX_TYPE_INT32:
+					printf("%d + %di ",((int32_t*)samples->re)[i],((int32_t*)samples->im)[i]);
 				break;
 				case CPLX_TYPE_BYTE:
 					printf("%d + %di ",((int8_t*)samples->re)[i],((int8_t*)samples->im)[i]);

@@ -15,7 +15,6 @@ int main(void){
 	printf("getting context ...\n");
 	FFT_CONTEXT* fft_context  = lsfft_init(samples_md->base_length,samples_md->type,FFT_MODE_NORMAL); //get the FFT context
 	FFT_CONTEXT* ifft_context = lsfft_init(samples_md->base_length,samples_md->type,FFT_MODE_INVERSE);
-	//FFT_CONTEXT* ifft_context = lsfft_init(16,CPLX_TYPE_INT,FFT_MODE_INVERSE); //get the FFT context
 
 	uint32_t i,j;
 	printf("loading samples\n");
@@ -29,36 +28,37 @@ int main(void){
 
 	uint32_t vector[2] = {3,3};
 	uint32_t pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
-	re[pos] = -10;
+	re[pos] = 10;
 
 	vector[0] = 4;
 	vector[1] = 4;
 	//vector[2] = 4;
 	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
-	re[pos] = -10;
-	re[pos] *= -0.2f;
+	re[pos] = 10;
+	//re[pos] *= -0.2f;
 
 	vector[0] = 3;
 	vector[1] = 4;
 	//vector[2] = 4;
 	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
-	re[pos] = -10;
+	re[pos] = 10;
 
 	vector[0] = 4;
 	vector[1] = 3;
 	//vector[2] = 4;
 	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
-	re[pos] = -10;
+	re[pos] = 10;
 
 	printf("Input\n");
-	lsfft_printl_samples(samples_md);		
+	lsfft_printl_samples(samples_md);
 
 	printf("performing MD FFT\n");
 	perform_fft_md(fft_context,samples_md);
 
  	printf("\nOutputting Result\n");
-	lsfft_printl_samples(samples_md);	
+	lsfft_printl_samples(samples_md);
 
+	printf("performing MD iFFT\n");
 	perform_fft_md(ifft_context,samples_md);
 
  	printf("\nOutputting Result\n");	
