@@ -416,7 +416,7 @@ void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory
 	//initialize vectors
 
 	memcpy(memory_from, memory_vector,sizeof(memory_from));
-	memcpy(memory_to, memory_vector,sizeof(memory_to));
+	memcpy(memory_to,   memory_vector,sizeof(memory_to));
 
 	int8_t* re_8t = (int8_t*)buffer->re;
 	int8_t* im_8t = (int8_t*)buffer->im;
@@ -443,8 +443,6 @@ void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory
 	uint32_t from_index;
 	uint32_t to_index;
 	uint32_t i;
-
-
 	
 	for(i=0;i<buffer->base_length;i++){
 		//printf("i:%d\n",i);
@@ -595,11 +593,11 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 		re_dt = (double*)buffer->re;
 		im_dt = (double*)buffer->im;
 
-		twiddle_re_dt = (double*) (context->twiddle_factors->re);
-		twiddle_im_dt = (double*) (context->twiddle_factors->im);
-
 		twiddle_re_ft = (float*) (context->twiddle_factors->re);
 		twiddle_im_ft = (float*) (context->twiddle_factors->im);
+
+		twiddle_re_dt = (double*) (context->twiddle_factors->re);
+		twiddle_im_dt = (double*) (context->twiddle_factors->im);
 
 		for(stage=0;stage<stages;stage++){ //for all stages
 			//printf("stage->%d/%d\n",stage,stages);
@@ -628,25 +626,6 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 					pos_t = (butterfly * stride_t) % size_tw; //compute the index of the necessary twiddle factor
 					
 					switch(fft_type){ // compute the type independent fft
-						case CPLX_TYPE_BYTE:
-							//printf("\t\tinput odd  -> %d + i * %d\n",re_8t[pos_odd],im_8t[pos_odd]);
-							//printf("\t\tinput even -> %d + i * %d\n\n",re_8t[pos_even],im_8t[pos_even]);
-							tmp_re_8t = re_8t[pos_odd];
-							tmp_im_8t = im_8t[pos_odd];
-
-							re_8t[pos_odd]  = tmp_re_8t + re_8t[pos_even]; //butterfly wing 1
-							im_8t[pos_odd]  = tmp_im_8t + im_8t[pos_even];
-
-							diff_re_8t = tmp_re_8t - re_8t[pos_even];
-							diff_im_8t = tmp_im_8t - im_8t[pos_even];
-
-							re_8t[pos_even] = re_mul_b(diff_re_8t, diff_im_8t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]); //butterfly wing 2
-							im_8t[pos_even] = im_mul_b(diff_re_8t, diff_im_8t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]);
-							//printf("\t\ttwiddle factor->%d -> %f + i * %f\n",pos_t,twiddle_re_ft[pos_t],twiddle_im_ft[pos_t]);
-							//printf("\t\tresult odd  -> %d + i * %d\n",re_8t[pos_odd],im_8t[pos_odd]);
-							//printf("\t\tresult even -> %d + i * %d\n\n",re_8t[pos_even],im_8t[pos_even]);
-						break;
-
 						case CPLX_TYPE_INT:
 							tmp_re_16t = re_16t[pos_odd];
 							tmp_im_16t = im_16t[pos_odd];
@@ -659,20 +638,6 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 
 							re_16t[pos_even] = re_mul_i(diff_re_16t, diff_im_16t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]); //butterfly wing 2
 							im_16t[pos_even] = im_mul_i(diff_re_16t, diff_im_16t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]);
-						break;
-
-						case CPLX_TYPE_INT32:
-							tmp_re_32t = re_32t[pos_odd];
-							tmp_im_32t = im_32t[pos_odd];
-
-							re_32t[pos_odd]  = tmp_re_32t + re_32t[pos_even]; //butterfly wing 1
-							im_32t[pos_odd]  = tmp_im_32t + im_32t[pos_even];
-
-							diff_re_32t = tmp_re_32t - re_32t[pos_even];
-							diff_im_32t = tmp_im_32t - im_32t[pos_even];
-
-							re_32t[pos_even] = re_mul_i32(diff_re_32t, diff_im_32t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]); //butterfly wing 2
-							im_32t[pos_even] = im_mul_i32(diff_re_32t, diff_im_32t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]);
 						break;
 
 						case CPLX_TYPE_SP:
@@ -701,6 +666,40 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 
 							re_dt[pos_even] = re_mul_d(diff_re_dt, diff_im_dt, twiddle_re_dt[pos_t], twiddle_im_dt[pos_t]); //butterfly wing 2
 							im_dt[pos_even] = im_mul_d(diff_re_dt, diff_im_dt, twiddle_re_dt[pos_t], twiddle_im_dt[pos_t]);
+						break;
+
+						case CPLX_TYPE_BYTE:
+							//printf("\t\tinput odd  -> %d + i * %d\n",re_8t[pos_odd],im_8t[pos_odd]);
+							//printf("\t\tinput even -> %d + i * %d\n\n",re_8t[pos_even],im_8t[pos_even]);
+							tmp_re_8t = re_8t[pos_odd];
+							tmp_im_8t = im_8t[pos_odd];
+
+							re_8t[pos_odd]  = tmp_re_8t + re_8t[pos_even]; //butterfly wing 1
+							im_8t[pos_odd]  = tmp_im_8t + im_8t[pos_even];
+
+							diff_re_8t = tmp_re_8t - re_8t[pos_even];
+							diff_im_8t = tmp_im_8t - im_8t[pos_even];
+
+							re_8t[pos_even] = re_mul_b(diff_re_8t, diff_im_8t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]); //butterfly wing 2
+							im_8t[pos_even] = im_mul_b(diff_re_8t, diff_im_8t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]);
+
+							//printf("\t\ttwiddle factor->%d -> %f + i * %f\n",pos_t,twiddle_re_ft[pos_t],twiddle_im_ft[pos_t]);
+							//printf("\t\tresult odd  -> %d + i * %d\n",re_8t[pos_odd],im_8t[pos_odd]);
+							//printf("\t\tresult even -> %d + i * %d\n\n",re_8t[pos_even],im_8t[pos_even]);
+						break;
+
+						case CPLX_TYPE_INT32:
+							tmp_re_32t = re_32t[pos_odd];
+							tmp_im_32t = im_32t[pos_odd];
+
+							re_32t[pos_odd]  = tmp_re_32t + re_32t[pos_even]; //butterfly wing 1
+							im_32t[pos_odd]  = tmp_im_32t + im_32t[pos_even];
+
+							diff_re_32t = tmp_re_32t - re_32t[pos_even];
+							diff_im_32t = tmp_im_32t - im_32t[pos_even];
+
+							re_32t[pos_even] = re_mul_i32(diff_re_32t, diff_im_32t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]); //butterfly wing 2
+							im_32t[pos_even] = im_mul_i32(diff_re_32t, diff_im_32t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]);
 						break;
 					}
 				}
@@ -735,7 +734,7 @@ void perform_fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* samples){
 			//it breaks when the incrementation causes a overflow.
 			axis++; // increment the axis for the fft and bit reverse functions
 
-			//lsfft_printl_samples(samples);
+			lsfft_printl_samples(samples);
 
 		}while(!vector_lsh(mask_vector,samples->dimension));//left shift the mask vector to iterate through the next axis
 		//the loop breaks when the mask vector overflows	
