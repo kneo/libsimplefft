@@ -21,29 +21,29 @@ void int8_fft(){
 		re[i] = 0;
 		im[i] = 0;
 	}
-
+    int amplitude = 5;
 	uint32_t vector[2] = {3,3};
-	uint32_t pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
-	re[pos] = 10;
+	uint32_t pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
+	re[pos] = amplitude;
 
 	vector[0] = 4;
 	vector[1] = 4;
 	//vector[2] = 4;
-	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
-	re[pos] = 10;
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
+	re[pos] = amplitude;
 	//re[pos] *= -0.2f;
 
 	vector[0] = 3;
 	vector[1] = 4;
 	//vector[2] = 4;
-	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
-	re[pos] = 10;
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
+	re[pos] = amplitude;
 
 	vector[0] = 4;
 	vector[1] = 3;
 	//vector[2] = 4;
-	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
-	re[pos] = 10;
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
+	re[pos] = amplitude;
 
 	printf("Input\n");
 	lsfft_printl_samples(samples_md);
@@ -57,7 +57,7 @@ void int8_fft(){
 	printf("performing MD iFFT\n");
 	perform_fft_md(ifft_context,samples_md);
 
- 	printf("\nOutputting Result\n");	
+ 	printf("\nOutputting Result\n");
 	lsfft_printl_samples(samples_md);
 
 	lsfft_free_complex_buffer(samples_md);
@@ -84,26 +84,26 @@ void int16_fft(){
 	}
 
 	uint32_t vector[2] = {3,3};
-	uint32_t pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	uint32_t pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 
 	vector[0] = 4;
 	vector[1] = 4;
 	//vector[2] = 4;
-	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 	//re[pos] *= -0.2f;
 
 	vector[0] = 3;
 	vector[1] = 4;
 	//vector[2] = 4;
-	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 
 	vector[0] = 4;
 	vector[1] = 3;
 	//vector[2] = 4;
-	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 
 	printf("Input\n");
@@ -118,7 +118,7 @@ void int16_fft(){
 	printf("performing MD iFFT\n");
 	perform_fft_md(ifft_context,samples_md);
 
- 	printf("\nOutputting Result\n");	
+ 	printf("\nOutputting Result\n");
 	lsfft_printl_samples(samples_md);
 
 	lsfft_free_complex_buffer(samples_md);
@@ -145,26 +145,26 @@ void int32_fft(){
 	}
 
 	uint32_t vector[2] = {3,3};
-	uint32_t pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	uint32_t pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 
 	vector[0] = 4;
 	vector[1] = 4;
 	//vector[2] = 4;
-	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 	//re[pos] *= -0.2f;
 
 	vector[0] = 3;
 	vector[1] = 4;
 	//vector[2] = 4;
-	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 
 	vector[0] = 4;
 	vector[1] = 3;
 	//vector[2] = 4;
-	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 
 	printf("Input\n");
@@ -179,7 +179,7 @@ void int32_fft(){
 	printf("performing MD iFFT\n");
 	perform_fft_md(ifft_context,samples_md);
 
- 	printf("\nOutputting Result\n");	
+ 	printf("\nOutputting Result\n");
 	lsfft_printl_samples(samples_md);
 
 	lsfft_free_complex_buffer(samples_md);
@@ -206,26 +206,26 @@ void float_fft(){
 	}
 
 	uint32_t vector[2] = {3,3};
-	uint32_t pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	uint32_t pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 
 	vector[0] = 4;
 	vector[1] = 4;
 	//vector[2] = 4;
-	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 	//re[pos] *= -0.2f;
 
 	vector[0] = 3;
 	vector[1] = 4;
 	//vector[2] = 4;
-	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 
 	vector[0] = 4;
 	vector[1] = 3;
 	//vector[2] = 4;
-	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 
 	printf("Input\n");
@@ -240,7 +240,7 @@ void float_fft(){
 	printf("performing MD iFFT\n");
 	perform_fft_md(ifft_context,samples_md);
 
- 	printf("\nOutputting Result\n");	
+ 	printf("\nOutputting Result\n");
 	lsfft_printl_samples(samples_md);
 
 	lsfft_free_complex_buffer(samples_md);
@@ -267,26 +267,26 @@ void double_fft(){
 	}
 
 	uint32_t vector[2] = {3,3};
-	uint32_t pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	uint32_t pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 
 	vector[0] = 4;
 	vector[1] = 4;
 	//vector[2] = 4;
-	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 	//re[pos] *= -0.2f;
 
 	vector[0] = 3;
 	vector[1] = 4;
 	//vector[2] = 4;
-	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 
 	vector[0] = 4;
 	vector[1] = 3;
 	//vector[2] = 4;
-	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension); 
+	pos = get_memory_index(vector,samples_md->dimension_strides,samples_md->dimension);
 	re[pos] = 10;
 
 	printf("Input\n");
@@ -301,7 +301,7 @@ void double_fft(){
 	printf("performing MD iFFT\n");
 	perform_fft_md(ifft_context,samples_md);
 
- 	printf("\nOutputting Result\n");	
+ 	printf("\nOutputting Result\n");
 	lsfft_printl_samples(samples_md);
 
 	lsfft_free_complex_buffer(samples_md);
@@ -317,11 +317,11 @@ int main(void){
 	int16_fft();
 	printf("32 Bit FFT:\n");
 	int32_fft();
-	printf("Single Precision FFT:\n");
+	/*printf("Single Precision FFT:\n");
 	float_fft();
 	printf("Double Precision FFT:\n");
 	double_fft();
-
+    */
 	//CPLX_SAMPLES* samples = lsfft_alloc_complex_buffer(16,CPLX_TYPE_INT); //get the sample buffer structure
 
 	/*
@@ -330,36 +330,36 @@ int main(void){
 	for(;i<16;i++){ //store a square wave pulse
 		((int16_t*)samples->re)[i] = i;
 	}
-	
+
 	lsfft_perform(fft_context,samples); // perform FFT
 
 	printf("FFT result:\n"); //show the result of the FFT
-	
+
 	for(i=0;i<16;i++){
 		printf("%d + i * %d\n",((int16_t*)samples->re)[i],((int16_t*)samples->im)[i]);
 	}
-	
+
 	lsfft_perform(ifft_context,samples); // perform FFT
-	
+
 	printf("\niFFT result:\n"); //show the result of the inverse DFT
-	
+
 	for(i=0;i<16;i++){
 		printf("%d + i * %d\n",((int16_t*)samples->re)[i],((int16_t*)samples->im)[i]);
 	}
-	
+
 	//--filtering using fast convolution
 	CPLX_SAMPLES* kernel = lsfft_alloc_complex_buffer(16,CPLX_TYPE_INT); //get the buffer for the convolution kernel
 
 	((int16_t*)kernel->re)[0] = -1; // perform an "edge" detection using 1D Sobel-Filter
 	((int16_t*)kernel->re)[1] =  0;
 	((int16_t*)kernel->re)[2] =  1;
-	
+
 	CONVOLUTION_CONTEXT* conv_context = lsfft_init_convolution(kernel);
-	
+
 	lsfft_perform_convolution(conv_context,samples); // compute the convolution
-	
+
 	printf("\nConvolution result:\n"); //show the result of the Convolution
-	
+
 	for(i=0;i<16;i++){
 		printf("%d + i * %d\n",((int16_t*)samples->re)[i],((int16_t*)samples->im)[i]);
 	}*/
