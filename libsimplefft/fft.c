@@ -270,7 +270,7 @@ void bit_reverse_float(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 
 		uint32_t samples = buffer->length;
 
-		int i = 0;
+		unsigned int i = 0;
 		uint32_t index;
 
 		float tmp_re,tmp_im;
@@ -299,7 +299,7 @@ void bit_reverse_double(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 
 		uint32_t samples = buffer->length;
 
-		int i = 0;
+		unsigned int i = 0;
 		uint32_t index;
 
 		double tmp_re,tmp_im;
@@ -329,7 +329,7 @@ void bit_reverse_int(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 
 		uint32_t samples = buffer->length;
 
-		int i = 0;
+		unsigned int i = 0;
 		uint32_t index;
 
 		int16_t tmp_re,tmp_im;
@@ -358,7 +358,7 @@ void bit_reverse_int(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 	if(context && buffer){
 		//printf("context type:%d size:%d mode:%d \n", context->type,context->samples,context->mode);
-		if(context->mode&2 != 0){
+		if((context->mode&2) != 0){
 			//Multidimensional entrypoint.
 		} else {
 			if(context->samples == buffer->length){
@@ -404,11 +404,9 @@ void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 //TODO: 3. Parallelizing multi dimensional FFTs
 
 void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory_vector, uint32_t axis){
-	uint32_t samples = buffer->length;
-	uint32_t index;
 	uint8_t fft_type=context->type; //branch prediction optization
 
-	int16_t tmp_re,tmp_im;
+
 	float norm=(context->mode == FFT_MODE_INVERSE) ? (1.0 / (float) buffer->base_length) : 1.0;
 
 	uint32_t memory_from[buffer->dimension];
@@ -557,11 +555,7 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 
 		//RADIX 2 DIF FFT
 
-		int16_t tmp_re; //since the first sample is required to be used in two calculations within each butterfly, its
-		int16_t tmp_im; //necessary to temporary store its original Value within these variables
 
-		int16_t diff_re; //the even dft requires a complex multiplication
-		int16_t diff_im; //to avoid redundant computations its been stored in extra variables
 
 		uint32_t pos_odd; //current position of the odd sample of the butterfly computation
 		uint32_t pos_even;//current position of the even sample of the butterfly computation
@@ -723,7 +717,7 @@ void perform_fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* samples){
 		memset(memory_vector,0,sizeof(memory_vector));
 		memset(mask_vector,  0,sizeof(mask_vector));
 		mask_vector[0] = 1;
-		int count = 0;
+
 		do{//iterate over all axis
 			do{//for each axis iterate over all none variable axis
 				memory_vector[axis]=0;

@@ -35,6 +35,7 @@ uint32_t log_2(uint32_t num){
 
 		return log;
 	}
+	return 0;
 }
 
 uint8_t bitcount(uint32_t num){
@@ -42,12 +43,13 @@ uint8_t bitcount(uint32_t num){
 		uint8_t bits = 0;
 		while(num>0){
 			num=num>>1;
-			if(num&1>0){
+			if((num&1)>0){
 				bits++;
 			}
 		}
 		return bits;
 	}
+	return 0;
 }
 
 float re_mul_f(float re1,float im1, float re2,float im2){
@@ -91,8 +93,6 @@ int32_t im_mul_i32(int32_t re1,int32_t im1, float re2,float im2){
 }
 
 uint32_t bit_reversal(uint32_t base,uint32_t num){
-	uint32_t res = 0;
-
 	if(bitcount(base)==1 && base > num && num > 0){
 
 		uint32_t count = log_2(base);
@@ -133,7 +133,7 @@ uint32_t inc_vector(uint32_t* result, uint32_t* skip_mask, uint32_t base, uint32
 			result[lsb] = (result[lsb]+1)%base; //add one add limit this place to be base max
 			carry = result[lsb]==0; //if it returns 0 addition resulted a carry
 
-			lsb=lsb+(1 & result[lsb]==0); // if there was a carry increment the lsb counter for the next iteration
+			lsb=lsb+((1 & result[lsb])==0); // if there was a carry increment the lsb counter for the next iteration
 
 	}while(carry && lsb < dimension); // while there is a carry redo loop
 
