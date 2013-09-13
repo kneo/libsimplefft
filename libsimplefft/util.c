@@ -20,6 +20,11 @@
 
 #include "util.h"
 
+int8_t re_mul_b(int8_t re1,int8_t im1, float re2,float im2);
+int8_t im_mul_b(int8_t re1,int8_t im1, float re2,float im2);
+int32_t re_mul_i32(int32_t re1,int32_t im1, float re2,float im2);
+int32_t im_mul_i32(int32_t re1,int32_t im1, float re2,float im2);
+
 uint32_t exp_2(uint32_t num){
 	return 1<<num;
 }
@@ -234,6 +239,8 @@ void lsfft_printl_samples(CPLX_SAMPLES* samples){
 				case CPLX_TYPE_BYTE:
 					printf("%d + %di ",((int8_t*)samples->re)[i],((int8_t*)samples->im)[i]);
 				break;
+
+				default: printf("invalid data type!");
 			}
 		}
 		printf("\n");

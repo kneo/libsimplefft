@@ -141,6 +141,8 @@ void lsfft_perform_convolution(CONVOLUTION_CONTEXT* context, CPLX_SAMPLES* signa
 					dsim[i] = im_mul_d(dtmp,dsim[i],dkre[i],dkim[i]);
 				}
 			break;
+
+			default: return;
 		}
 		//fprintf(stderr,"point wise multiplication done!\n");
 		//perform the ifft of the convoluted signal

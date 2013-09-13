@@ -20,6 +20,9 @@
 
 #include "alloc.h"
 
+
+CPLX_SAMPLES* alloc_samples_struct();
+
 CPLX_SAMPLES* alloc_samples_struct(){
 	CPLX_SAMPLES* res = (CPLX_SAMPLES*) calloc(1,sizeof(struct CPLX_SAMPLES));
 
@@ -65,6 +68,8 @@ CPLX_SAMPLES* lsfft_alloc_complex_buffer(uint32_t samples, uint8_t type){
 				res->re = (void*) calloc(samp,sizeof(int16_t));
 				res->im = (void*) calloc(samp,sizeof(int16_t));
 			break;
+
+			default: return NULL;
 		}
 
 		return res;
@@ -156,6 +161,9 @@ CPLX_SAMPLES* lsfft_alloc_complex_buffer_md(uint32_t samples, uint8_t type, uint
 				res->im = (void*) calloc(res->length,sizeof(int8_t));
 				res->type_size = sizeof(int8_t);
 			break;
+
+			default: return NULL;
+
 		}
 
 		return res;

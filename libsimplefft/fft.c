@@ -20,6 +20,16 @@
 
 #include "fft.h"
 
+void fft_float(FFT_CONTEXT* context, CPLX_SAMPLES* buffer);
+void fft_double(FFT_CONTEXT* context, CPLX_SAMPLES* buffer);
+void fft_int(FFT_CONTEXT* context, CPLX_SAMPLES* buffer);
+void bit_reverse_float(FFT_CONTEXT* context, CPLX_SAMPLES* buffer);
+void bit_reverse_double(FFT_CONTEXT* context, CPLX_SAMPLES* buffer);
+void bit_reverse_int(FFT_CONTEXT* context, CPLX_SAMPLES* buffer);
+void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* memory_vector);
+void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory_vector, uint32_t axis);
+
+
 void fft_float(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 	if(context && buffer){
 		uint32_t stages      = context->stages; //stages of the fft
@@ -393,6 +403,8 @@ void lsfft_perform(FFT_CONTEXT* context, CPLX_SAMPLES* buffer){
 					case CPLX_TYPE_BYTE:
 
 					break;
+
+					default: return;
 				}
 			}
 		}
@@ -509,6 +521,8 @@ void bit_reverse_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t* memory
 					re_dt[to_index] = tmp_re_dt*norm;
 					im_dt[to_index] = tmp_im_dt*norm;
 				break;
+
+				default: return;
 			}
 		}
 	}
@@ -694,6 +708,9 @@ void fft_md(FFT_CONTEXT* context, CPLX_SAMPLES* buffer, uint32_t axis,uint32_t* 
 
 							re_32t[pos_even] = (int32_t) roundf(re_mul_f((float)diff_re_32t, (float)diff_im_32t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t])); //butterfly wing 2
 							im_32t[pos_even] = (int32_t) roundf(im_mul_f((float)diff_re_32t, (float)diff_im_32t, twiddle_re_ft[pos_t], twiddle_im_ft[pos_t]));
+						break;
+
+						default:
 						break;
 					}
 				}

@@ -38,6 +38,8 @@ results. So have fun looking through the code or use it for your projects.
 - JNI Access
 - Android Build and usage via JNI
 - Fast Convolution in C and Java using JNI
+- nth dimension FFTs
+- Introduced new Integer Precision types (8 and 32 Bit)
 
 3. What's going to work?
 ===============================
@@ -45,7 +47,6 @@ results. So have fun looking through the code or use it for your projects.
 - cast FFTs into another data precision type
 - I consider a parallized version running several threads,
   but no commitment on that one.
-- multiple dimensions FFTs
 
 4. How to use it
 ===============================
@@ -89,6 +90,11 @@ Standard include the file by
 	#include<libsimplefft/libsimplefft.h>
 
 NOTE: also check out the header files for further information!
+
+NOTE: the old FFT implementations stays for a few further commits.
+Until then the multi dimension FFTs have the "_md" suffix.
+Please use these functions and refer the header files for parameter description
+The Procedure is the same as in this description!
 
 Allmost done next step is to allocate a FFT context, which computes
 necessary twiddle factors and does some other caching work for you.
@@ -141,7 +147,7 @@ float pointer (double if double precision and int16_t on integer precision):
 
 	CPLX_SAMPLES* samples;
 
-	//initialization ... allocation etc
+	//initialization ... allocation etc.
 
 	float* re = (float*)samples->re;
 	float* im = (float*)samples->im;
@@ -159,7 +165,7 @@ since its an in place FFT.
 
 4.5. Examples
 --------------------------------
-There are examples on how to use libsimplefft in C just checkout the 
+There are examples on how to use libsimplefft in C just checkout the example directory
 
 5. Build on Android
 ========================================

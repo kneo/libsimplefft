@@ -2,17 +2,17 @@
 *This is a part of libsimplefft
 *
 * Copyright (C) 2012  Kevin Krüger (kkevin@gmx.net)
-* 
+*
 * libsimplefft is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
 * License as published by the Free Software Foundation; either
 * version 2.1 of the License, or (at your option) any later version.
-* 
+*
 * libsimplefft is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 * Lesser General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU Lesser General Public
 * License along with libsimplefft; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -31,6 +31,9 @@ CPLX_SAMPLES* lsfft_alloc_complex_buffer(uint32_t samples, uint8_t type);
 
 /**allocates a buffer of complex numbers of type where type is one of the CPLX_TYPE_ defines above
 *Its purpose is to allocate buffers for multi dimensional FFTs
+*@param samples size of the FFT (Base 2)
+*@param type of the contained data See CPLX_TYPES_ in defines.h for available types
+*@param dimensions dimension of the FFT (1...n) mind the 32 bit memory limit and your computer resources.
 */
 CPLX_SAMPLES* lsfft_alloc_complex_buffer_md(uint32_t samples, uint8_t type, uint32_t dimensions);
 
@@ -38,4 +41,4 @@ CPLX_SAMPLES* lsfft_alloc_complex_buffer_md(uint32_t samples, uint8_t type, uint
 */
 void lsfft_free_complex_buffer(CPLX_SAMPLES* buffer);
 
-#endif		
+#endif
