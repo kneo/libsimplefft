@@ -12,7 +12,7 @@ void int8_fft(){
 	FFT_CONTEXT* fft_context  = lsfft_init(samples_md->base_length,samples_md->type,FFT_MODE_NORMAL); //get the FFT context
 	FFT_CONTEXT* ifft_context = lsfft_init(samples_md->base_length,samples_md->type,FFT_MODE_INVERSE);
 
-	uint32_t i,j;
+	uint32_t i;
 	printf("loading samples\n");
 	int8_t* re =(int8_t*)samples_md->re;
 	int8_t* im =(int8_t*)samples_md->im;
@@ -73,7 +73,7 @@ void int16_fft(){
 	FFT_CONTEXT* fft_context  = lsfft_init(samples_md->base_length,samples_md->type,FFT_MODE_NORMAL); //get the FFT context
 	FFT_CONTEXT* ifft_context = lsfft_init(samples_md->base_length,samples_md->type,FFT_MODE_INVERSE);
 
-	uint32_t i,j;
+	uint32_t i;
 	printf("loading samples\n");
 	int16_t* re =(int16_t*)samples_md->re;
 	int16_t* im =(int16_t*)samples_md->im;
@@ -134,7 +134,7 @@ void int32_fft(){
 	FFT_CONTEXT* fft_context  = lsfft_init(samples_md->base_length,samples_md->type,FFT_MODE_NORMAL); //get the FFT context
 	FFT_CONTEXT* ifft_context = lsfft_init(samples_md->base_length,samples_md->type,FFT_MODE_INVERSE);
 
-	uint32_t i,j;
+	uint32_t i;
 	printf("loading samples\n");
 	int32_t* re =(int32_t*)samples_md->re;
 	int32_t* im =(int32_t*)samples_md->im;
@@ -195,7 +195,7 @@ void float_fft(){
 	FFT_CONTEXT* fft_context  = lsfft_init(samples_md->base_length,samples_md->type,FFT_MODE_NORMAL); //get the FFT context
 	FFT_CONTEXT* ifft_context = lsfft_init(samples_md->base_length,samples_md->type,FFT_MODE_INVERSE);
 
-	uint32_t i,j;
+	uint32_t i;
 	printf("loading samples\n");
 	float* re =(float*)samples_md->re;
 	float* im =(float*)samples_md->im;
@@ -256,7 +256,7 @@ void double_fft(){
 	FFT_CONTEXT* fft_context  = lsfft_init(samples_md->base_length,samples_md->type,FFT_MODE_NORMAL); //get the FFT context
 	FFT_CONTEXT* ifft_context = lsfft_init(samples_md->base_length,samples_md->type,FFT_MODE_INVERSE);
 
-	uint32_t i,j;
+	uint32_t i;
 	printf("loading samples\n");
 	double* re =(double*)samples_md->re;
 	double* im =(double*)samples_md->im;
@@ -317,11 +317,10 @@ int main(void){
 	int16_fft();
 	printf("32 Bit FFT:\n");
 	int32_fft();
-	/*printf("Single Precision FFT:\n");
+	printf("Single Precision FFT:\n");
 	float_fft();
 	printf("Double Precision FFT:\n");
 	double_fft();
-    */
 	//CPLX_SAMPLES* samples = lsfft_alloc_complex_buffer(16,CPLX_TYPE_INT); //get the sample buffer structure
 
 	/*
@@ -366,4 +365,5 @@ int main(void){
 
 	printf("press any key to quit!\n");
 	getchar();
+	return 0;
 }
