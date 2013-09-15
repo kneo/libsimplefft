@@ -65,9 +65,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="libsimplefft.h" />
-		<Unit filename="ndfft.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="twiddle.c">
 			<Option compilerVar="CC" />
 		</Unit>
