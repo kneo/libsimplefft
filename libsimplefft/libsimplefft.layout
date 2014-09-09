@@ -5,27 +5,27 @@
 		<Cursor position="2894" topLine="92" />
 	</File>
 	<File name="alloc.h" open="1" top="0" tabpos="7">
-		<Cursor position="1475" topLine="9" />
+		<Cursor position="1475" topLine="7" />
 	</File>
 	<File name="convolution.c" open="1" top="0" tabpos="5">
 		<Cursor position="1246" topLine="18" />
 	</File>
 	<File name="defines.h" open="1" top="0" tabpos="9">
-		<Cursor position="1084" topLine="19" />
+		<Cursor position="1084" topLine="60" />
 	</File>
 	<File name="fft.c" open="1" top="0" tabpos="1">
 		<Cursor position="15168" topLine="406" />
 	</File>
 	<File name="fft.h" open="1" top="0" tabpos="8">
-		<Cursor position="0" topLine="12" />
+		<Cursor position="0" topLine="10" />
 	</File>
 	<File name="libsimplefft.c" open="1" top="0" tabpos="6">
 		<Cursor position="1785" topLine="12" />
 	</File>
 	<File name="libsimplefft.h" open="1" top="0" tabpos="3">
-		<Cursor position="960" topLine="28" />
+		<Cursor position="1413" topLine="26" />
 	</File>
-	<File name="twiddle.c" open="1" top="1" tabpos="10">
+	<File name="twiddle.c" open="1" top="0" tabpos="10">
 		<Cursor position="992" topLine="50" />
 	</File>
 	<File name="util.c" open="1" top="0" tabpos="2">
